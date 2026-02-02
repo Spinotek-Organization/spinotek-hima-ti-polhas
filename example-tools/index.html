@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevToolkit - Spinotek x HIMA TI Showcase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#f97316',
+                        dark: '#0f172a',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col relative">
+
+    <!-- Background Ornaments -->
+    <!-- High-Tech Grid Background -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0 bg-slate-50">
+        <!-- Grid Pattern -->
+        <div class="absolute inset-0 h-full w-full bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        <!-- Radial Fade for Depth -->
+        <div class="absolute top-0 left-0 right-0 h-[500px] bg-gradient-to-b from-white to-transparent"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="relative z-10 p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 px-4 py-2 bg-white/50 backdrop-blur-sm border border-slate-200 rounded-full shadow-sm">
+                <img src="../assets/img/spinotek-logo.png" alt="Spinotek" class="h-5 opacity-80">
+                <span class="text-slate-300">|</span>
+                <img src="../assets/img/logo-hima-ti.png" alt="HIMA TI" class="h-6 opacity-80">
+            </div>
+        </div>
+        <div class="text-center md:text-right">
+            <h1 class="text-2xl font-black text-slate-900">Dev<span class="text-primary">Toolkit</span></h1>
+            <p class="text-xs font-mono font-bold text-slate-400 uppercase tracking-widest">Essential Utilities for Developers</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative z-10 flex-1 container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- Tool 1: Password Generator -->
+            <div class="bg-white rounded-[1rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+                <div class="bg-slate-900 p-4 px-6 flex justify-between items-center">
+                    <h3 class="text-white font-bold text-sm tracking-wide">SecurePass.Gen</h3>
+                    <div class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="relative bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center">
+                        <input type="text" id="pass-display" readonly class="bg-transparent border-none outline-none w-full font-mono text-sm text-slate-800" value="...">
+                        <button onclick="generatePass()" class="text-slate-400 hover:text-primary transition-colors"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg></button>
+                    </div>
+                    <div class="flex justify-between items-center text-xs text-slate-500 font-medium pb-2">
+                        <span>Length: <span id="pass-len-val">16</span></span>
+                        <input type="range" id="pass-len" min="8" max="32" value="16" class="w-24 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary">
+                    </div>
+                    <button onclick="copyPass()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl text-xs uppercase tracking-wider transition-colors">Copy Password</button>
+                </div>
+            </div>
+
+            <!-- Tool 2: PX to REM -->
+            <div class="bg-white rounded-[1rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+                <div class="bg-primary p-4 px-6 flex justify-between items-center">
+                    <h3 class="text-white font-bold text-sm tracking-wide">Px2Rem.Calc</h3>
+                    <div class="text-white/50 text-xs font-mono">16px Base</div>
+                </div>
+                <div class="p-6 flex items-center gap-4">
+                    <div class="flex-1 space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase">Pixels</label>
+                        <input type="number" id="px-input" placeholder="16" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-mono text-slate-900 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all">
+                    </div>
+                    <div class="pt-6 text-slate-300">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </div>
+                    <div class="flex-1 space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase">REM</label>
+                        <input type="text" id="rem-output" readonly class="w-full bg-slate-100 border-transparent rounded-xl px-4 py-3 font-mono text-slate-500 outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tool 3: Case Converter -->
+            <div class="bg-white rounded-[1rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+                <div class="bg-secondary p-4 px-6 flex justify-between items-center">
+                    <h3 class="text-white font-bold text-sm tracking-wide">Case.Transform</h3>
+                    <div class="flex gap-1">
+                        <span class="text-[10px] text-white/60 bg-white/10 px-1.5 rounded">Aa</span>
+                        <span class="text-[10px] text-white/60 bg-white/10 px-1.5 rounded">AA</span>
+                    </div>
+                </div>
+                <div class="p-6 space-y-4">
+                    <textarea id="case-input" rows="2" placeholder="Type text here..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:border-secondary focus:ring-1 focus:ring-secondary outline-none resize-none transition-all"></textarea>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="toUpper()" class="py-2 rounded-lg bg-orange-50 hover:bg-orange-100 text-orange-600 text-[10px] font-bold uppercase transition-colors">UPPER</button>
+                        <button onclick="toLower()" class="py-2 rounded-lg bg-orange-50 hover:bg-orange-100 text-orange-600 text-[10px] font-bold uppercase transition-colors">lower</button>
+                        <button onclick="toTitle()" class="py-2 rounded-lg bg-orange-50 hover:bg-orange-100 text-orange-600 text-[10px] font-bold uppercase transition-colors">Title</button>
+                    </div>
+                </div>
+            </div>
+
+             <!-- Tool 4: Word Counter -->
+             <div class="bg-white rounded-[1rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+                <div class="bg-slate-800 p-4 px-6 flex justify-between items-center">
+                    <h3 class="text-white font-bold text-sm tracking-wide">Word.Stats</h3>
+                    <div class="w-2 h-2 rounded-full bg-blue-400"></div>
+                </div>
+                <div class="p-6 space-y-4">
+                    <textarea id="word-input" rows="3" placeholder="Paste your paragraph here..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:border-slate-800 focus:ring-1 focus:ring-slate-800 outline-none resize-none transition-all"></textarea>
+                    <div class="flex justify-between items-center text-xs font-mono text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <div>Words: <strong class="text-slate-900 text-base" id="count-words">0</strong></div>
+                        <div class="h-4 w-px bg-slate-300"></div>
+                        <div>Chars: <strong class="text-slate-900 text-base" id="count-chars">0</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tool 5: Lorem Ipsum -->
+            <div class="bg-white rounded-[1rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+                <div class="bg-teal-600 p-4 px-6 flex justify-between items-center">
+                    <h3 class="text-white font-bold text-sm tracking-wide">Lorem.Ipsum</h3>
+                    <div class="text-white/50 text-xs">Generator</div>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="flex justify-between items-center text-xs text-slate-500 font-medium">
+                        <span>Paragraphs: <span id="lorem-count-val" class="text-teal-600 font-bold">1</span></span>
+                        <input type="range" id="lorem-count" min="1" max="5" value="1" class="w-24 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600">
+                    </div>
+                    <div class="relative">
+                        <div id="lorem-output" class="h-24 overflow-y-auto bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600 leading-relaxed font-mono">
+                            Lorem ipsum dolor sit amet...
+                        </div>
+                        <button onclick="copyLorem()" class="absolute top-2 right-2 p-1.5 bg-white rounded-lg shadow-sm border border-slate-100 text-slate-400 hover:text-teal-600 transition-colors">
+                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
+                    </div>
+                    <button onclick="generateLorem()" class="w-full py-2 bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold rounded-xl text-xs uppercase tracking-wider transition-colors">Generate Text</button>
+                </div>
+            </div>
+
+            <!-- Tool 6: Color Converter -->
+            <div class="bg-white rounded-[1rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+                <div class="bg-rose-500 p-4 px-6 flex justify-between items-center">
+                    <h3 class="text-white font-bold text-sm tracking-wide">Color.Vision</h3>
+                    <div class="w-4 h-4 rounded-full bg-white border-2 border-white/20 shadow-inner" id="color-preview"></div>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <input type="color" id="color-picker" class="w-10 h-10 rounded-xl cursor-pointer border-none bg-transparent" value="#f43f5e">
+                        <div class="flex-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">HEX Code</label>
+                            <input type="text" id="hex-input" value="#f43f5e" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-mono text-slate-900 uppercase focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-none">
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">RGB Value</label>
+                        <div class="font-mono text-sm text-slate-700 select-all" id="rgb-output">rgb(244, 63, 94)</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer - Compact Branding -->
+    <footer class="relative z-10 py-8 text-center mt-auto">
+        <div class="inline-flex flex-col md:flex-row items-center gap-4 md:gap-8 px-6 py-3 bg-white/60 backdrop-blur-md border border-slate-200 rounded-[2rem] shadow-sm hover:shadow-md transition-all">
+            <a href="https://spinotek.com" target="_blank" class="flex items-center gap-3 group text-left">
+                <img src="../assets/img/spinotek-logo.png" alt="Spinotek" class="h-5 grayscale group-hover:grayscale-0 transition-all">
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-bold text-slate-500 group-hover:text-primary uppercase tracking-wider">Spinotek</span>
+                    <span class="text-[9px] text-slate-400 font-medium">Pengembang Software Terpercaya</span>
+                </div>
+            </a>
+            <span class="hidden md:block text-slate-300">|</span>
+            <a href="https://www.pmb.polihasnur.ac.id" target="_blank" class="flex items-center gap-3 group text-left">
+                <img src="../assets/img/logo-polihasnur.png" alt="Polihasnur" class="h-6 grayscale group-hover:grayscale-0 transition-all">
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-bold text-slate-500 group-hover:text-secondary uppercase tracking-wider">Polihasnur</span>
+                    <span class="text-[9px] text-slate-400 font-medium">Pilihan Kuliah Terbaik di Kalsel</span>
+                </div>
+            </a>
+        </div>
+    </footer>
+
+    <!-- Script Logic for All Tools -->
+    <script>
+        // --- Tool 1: Password Generator ---
+        function generatePass() {
+            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+            const len = document.getElementById('pass-len').value;
+            let pass = "";
+            for(let i=0;i<len;i++) pass += chars[Math.floor(Math.random()*chars.length)];
+            document.getElementById('pass-display').value = pass;
+        }
+        function copyPass() {
+            const pass = document.getElementById('pass-display');
+            pass.select();
+            document.execCommand("copy");
+        }
+        document.getElementById('pass-len').addEventListener('input', (e) => {
+            document.getElementById('pass-len-val').innerText = e.target.value;
+            generatePass();
+        });
+        generatePass(); // Init
+
+        // --- Tool 2: PX to REM ---
+        document.getElementById('px-input').addEventListener('input', (e) => {
+            const px = e.target.value;
+            const rem = px ? (px / 16).toFixed(3) + ' rem' : '';
+            document.getElementById('rem-output').value = rem;
+        });
+
+        // --- Tool 3: Case Converter ---
+        const caseInput = document.getElementById('case-input');
+        function toUpper() { caseInput.value = caseInput.value.toUpperCase(); }
+        function toLower() { caseInput.value = caseInput.value.toLowerCase(); }
+        function toTitle() { 
+            caseInput.value = caseInput.value.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '); 
+        }
+
+        // --- Tool 4: Word Counter ---
+        document.getElementById('word-input').addEventListener('input', (e) => {
+            const text = e.target.value.trim();
+            document.getElementById('count-chars').innerText = text.length;
+            document.getElementById('count-words').innerText = text ? text.split(/\s+/).length : 0;
+        });
+
+        // --- Tool 5: Lorem Ipsum ---
+        const loremText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+        function generateLorem() {
+            const count = document.getElementById('lorem-count').value;
+            document.getElementById('lorem-count-val').innerText = count;
+            document.getElementById('lorem-output').innerText = Array(parseInt(count)).fill(loremText).join('\n\n');
+        }
+        function copyLorem() {
+            navigator.clipboard.writeText(document.getElementById('lorem-output').innerText);
+        }
+        document.getElementById('lorem-count').addEventListener('input', generateLorem);
+        generateLorem(); // Init
+
+        // --- Tool 6: Color Converter ---
+        function hexToRgb(hex) {
+            const r = parseInt(hex.substring(1, 3), 16);
+            const g = parseInt(hex.substring(3, 5), 16);
+            const b = parseInt(hex.substring(5, 7), 16);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+        function updateColor(hex) {
+            document.getElementById('hex-input').value = hex;
+            document.getElementById('color-picker').value = hex;
+            document.getElementById('color-preview').style.backgroundColor = hex;
+            document.getElementById('rgb-output').innerText = hexToRgb(hex);
+        }
+        document.getElementById('color-picker').addEventListener('input', (e) => updateColor(e.target.value));
+        document.getElementById('hex-input').addEventListener('input', (e) => {
+            if(/^#[0-9A-F]{6}$/i.test(e.target.value)) updateColor(e.target.value);
+        });
+    </script>
+</body>
+</html>
