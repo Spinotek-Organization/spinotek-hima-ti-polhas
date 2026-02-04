@@ -139,53 +139,84 @@ header p {
     margin-bottom: 20px;
 }
 
+/* Skeuomorphic Board */
+/* Skeuomorphic Board (Blue Theme) */
 .chessboard {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
     width: 100%;
     max-width: 480px;
-    /* Keep this */
     aspect-ratio: 1 / 1;
-    border: 5px solid #4a4a4a;
-    border-radius: 4px;
+
+    /* Blue Theme Base */
+    background: #1a252f;
+    /* Deep Blue base */
+    background-image:
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 2px, transparent 2px, transparent 4px),
+        linear-gradient(to bottom, #2c3e50, #1a252f);
+
+    /* Board Thickness */
+    border: 8px solid #151e26;
+    /* Darker blue border */
+    border-radius: 6px;
+    box-shadow:
+        0 10px 0 #151e26,
+        /* Thickness */
+        0 10px 10px rgba(0, 0, 0, 0.5),
+        /* Drop shadow */
+        inset 0 0 10px rgba(0, 0, 0, 0.5);
+    /* Inner depth */
+
     user-select: none;
     margin: 0 auto;
-    /* Ensure centered */
-    background-color: #333;
-    /* Fallback */
+    position: relative;
 }
 
 .square {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: min(10vw, 40px);
-    /* Slightly larger for mobile visibility */
-    cursor: pointer;
     position: relative;
-    overflow: hidden;
-    /* Contain content */
+    overflow: visible;
 }
 
+/* Blue & White Squares (Darker Variant) */
 .square.light {
-    background-color: var(--board-light);
-    color: black;
+    background-color: #bdc3c7;
+    /* Silver/Darker White */
+    background-image: linear-gradient(to bottom right, #dbe2ef, #b0bec5);
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+    color: #2c3e50;
 }
 
 .square.dark {
-    background-color: var(--board-dark);
-    color: black;
+    background-color: #1a5276;
+    /* Dark Navy Blue */
+    background-image: linear-gradient(to bottom right, #1a5276, #154360);
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+    color: #ecf0f1;
 }
 
 /* Piece styling */
 .piece {
+    width: 90%;
+    height: 90%;
+    object-fit: contain;
     cursor: grab;
-    z-index: 2;
+    z-index: 10;
+    transition: transform 0.1s;
+
+    /* Fake Lighting: Light from Top-Left -> Shadow to Bottom-Right */
+    filter: drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.6));
 }
 
 .piece:active {
     cursor: grabbing;
+    transform: scale(1.1);
+    /* Lift effect */
+    filter: drop-shadow(8px 8px 12px rgba(0, 0, 0, 0.8));
+    /* Higher lift shadow */
 }
 
 /* Highlights */

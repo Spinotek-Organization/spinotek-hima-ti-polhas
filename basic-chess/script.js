@@ -8,11 +8,15 @@ const COLS = 8;
 const WHITE = 'white';
 const BLACK = 'black';
 
-// Pieces unicode representation
-const PIECES = {
-    w: { k: '♔', q: '♕', r: '♖', b: '♗', n: '♘', p: '♙' },
-    b: { k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' }
-};
+// Pieces - using images now. 
+// const PIECES = ... (Unused for 3D/Skeuomorphic variant, using images)
+
+function getPieceImage(pieceChar) {
+    const colorChar = pieceChar === pieceChar.toUpperCase() ? 'w' : 'b';
+    const typeChar = pieceChar.toLowerCase();
+    // Using Chess.com 'glass' theme for 3D effect
+    return `https://images.chesscomfiles.com/chess-themes/pieces/glass/150/${colorChar}${typeChar}.png`;
+}
 
 // Initial Board Setup (FEN-like logic but simple 2D array)
 const INITIAL_BOARD = [
@@ -154,21 +158,30 @@ function renderBoard() {
     for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS; c++) {
             const square = document.createElement('div');
-            square.classList.add('square');
-            square.classList.add((r + c) % 2 === 0 ? 'light' : 'dark');
+            square.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
             square.dataset.r = r;
             square.dataset.c = c;
 
             const pieceChar = board[r][c];
             if (pieceChar) {
-                const color = getPieceColor(pieceChar);
-                square.textContent = PIECES[color === WHITE ? 'w' : 'b'][pieceChar.toLowerCase()];
-                square.classList.add('piece');
-                if (color === WHITE) square.style.color = '#fff';
-                else square.style.color = '#000';
+                // Image Based Rendering
+                const pieceImg = document.createElement('img');
+                pieceImg.src = getPieceImage(pieceChar);
+                pieceImg.alt = pieceChar;
+                pieceImg.className = 'piece';
 
-                // Better contrast for white pieces text shadow
-                if (color === WHITE) square.style.textShadow = '0 0 2px #000';
+                // Fallback to text if image fails
+                pieceImg.onerror = function () {
+                    this.style.display = 'none';
+                    const color = getPieceColor(pieceChar);
+                    square.textContent = getUnicodePiece(pieceChar);
+                    square.style.color = color === WHITE ? '#fff' : '#000';
+                    square.style.textShadow = color === WHITE ? '0 0 2px #000' : 'none';
+                    square.style.fontSize = "40px";
+                    square.classList.add('piece'); // Ensure click logic works
+                };
+
+                square.appendChild(pieceImg);
             }
 
             // Highlights
@@ -200,6 +213,17 @@ function renderBoard() {
             boardElement.appendChild(square);
         }
     }
+}
+
+// Fallback Helper
+function getUnicodePiece(char) {
+    const PIECES_UNICODE = {
+        w: { k: '♔', q: '♕', r: '♖', b: '♗', n: '♘', p: '♙' },
+        b: { k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' }
+    };
+    const color = char === char.toUpperCase() ? 'w' : 'b';
+    const type = char.toLowerCase();
+    return PIECES_UNICODE[color][type];
 }
 
 function handleSquareClick(r, c) {
@@ -737,61 +761,87 @@ function animateMove(move) {
         const fromSquare = document.querySelector(`.square[data-r="${move.from.r}"][data-c="${move.from.c}"]`);
         const toSquare = document.querySelector(`.square[data-r="${move.to.r}"][data-c="${move.to.c}"]`);
 
-        // If for some reason squares aren't found, skip animation
         if (!fromSquare || !toSquare) {
             resolve();
             return;
         }
 
-        const pieceElement = fromSquare.querySelector('.piece'); // Assumes text node is inside the div directly or handled similarly? 
-        // Actually, in renderBoard, square.textContent has the piece
-        // But to animate properly, we need an element.
-        // renderBoard sets textContent. We can't transform textNode easily.
-        // Let's create a clone element for animation.
+        // Target the PIECE IMAGE specifically
+        const pieceImg = fromSquare.querySelector('img.piece');
 
-        const clone = document.createElement('div');
-        clone.textContent = fromSquare.textContent;
-        clone.className = fromSquare.className;
-        // Important: copy computed styles or at least specific sizing/positioning
+        if (!pieceImg) {
+            // If no image found (maybe invisible or lag), just resolve
+            resolve();
+            return;
+        }
+
+        // Clone ONLY the image
+        const clone = pieceImg.cloneNode(true);
+
+        // Get Rects
+        const fromRect = pieceImg.getBoundingClientRect(); // Use image rect, not square
+        const toRect = toSquare.getBoundingClientRect(); // Target square center 
+        // Note: toSquare might be empty, so use its rect. 
+        // Ideally we want to center the piece in the toSquare.
+
+        // Calculate centered position in toSquare
+        // The piece size is roughly 90% of square (from CSS).
+        // Let's just animate to toSquare's top-left + padding?
+        // Or simpler: clone current rect, animate to target rect.
+
+        const startLeft = fromRect.left + window.scrollX;
+        const startTop = fromRect.top + window.scrollY;
+
+        // We want the destination to be where the piece WOULD be.
+        // Since pieces are centered/sized by flexbox in square, 
+        // let's assume destination rect matches the target square's content box roughly.
+        // Actually, easiest is to trust the delta between squares.
+        const destLeft = toRect.left + window.scrollX + (toRect.width - fromRect.width) / 2;
+        const destTop = toRect.top + window.scrollY + (toRect.height - fromRect.height) / 2;
+
+        // Setup Clone
         clone.style.position = 'absolute';
-        clone.style.zIndex = '1000';
-        clone.style.pointerEvents = 'none';
-
-        // Get coordinates
-        const fromRect = fromSquare.getBoundingClientRect();
-        const toRect = toSquare.getBoundingClientRect();
-
+        clone.style.left = `${startLeft}px`;
+        clone.style.top = `${startTop}px`;
         clone.style.width = `${fromRect.width}px`;
         clone.style.height = `${fromRect.height}px`;
-        clone.style.left = `${fromRect.left + window.scrollX}px`;
-        clone.style.top = `${fromRect.top + window.scrollY}px`;
-        clone.style.display = 'flex';
-        clone.style.justifyContent = 'center';
-        clone.style.alignItems = 'center';
-
-        // Copy explicit styles if any (like color from inline logic if reverted)
-        if (fromSquare.style.color) clone.style.color = fromSquare.style.color;
-        if (fromSquare.style.textShadow) clone.style.textShadow = fromSquare.style.textShadow;
+        clone.style.zIndex = '9999';
+        clone.style.pointerEvents = 'none';
+        clone.style.transform = 'translate(0, 0)';
+        clone.style.willChange = 'transform';
 
         document.body.appendChild(clone);
 
-        // Hide original immediately
-        fromSquare.style.opacity = '0'; // Actually we can just keep it until we overwrite content
+        // Hide original
+        pieceImg.style.visibility = 'hidden';
+        // visibility:hidden keeps layout but hides pixels. opacity:0 works too.
 
         // Animate
+        const deltaX = destLeft - startLeft;
+        const deltaY = destTop - startTop;
+
+        // Using Web Anim API for better performance/control than CSS class
         const animation = clone.animate([
-            { transform: 'translate(0, 0)' },
-            { transform: `translate(${toRect.left - fromRect.left}px, ${toRect.top - fromRect.top}px)` }
+            { transform: 'translate(0px, 0px)' },
+            { transform: `translate(${deltaX}px, ${deltaY}px)` }
         ], {
-            duration: 200,
-            easing: 'ease-in-out'
+            duration: 300,
+            easing: 'cubic-bezier(0.25, 1, 0.5, 1)' // smooth ease out
         });
 
         animation.onfinish = () => {
             clone.remove();
-            fromSquare.style.opacity = '1'; // Restore just in case
+            pieceImg.style.visibility = 'visible'; // Restore (logic will move it shortly after resolve)
             resolve();
         };
+
+        // Fallback safety
+        setTimeout(() => {
+            if (document.body.contains(clone)) {
+                clone.remove();
+                resolve();
+            }
+        }, 350);
     });
 }
 
