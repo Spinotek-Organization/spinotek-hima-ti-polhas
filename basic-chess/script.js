@@ -8,11 +8,15 @@ const COLS = 8;
 const WHITE = 'white';
 const BLACK = 'black';
 
-// Pieces unicode representation
-const PIECES = {
-    w: { k: '♔', q: '♕', r: '♖', b: '♗', n: '♘', p: '♙' },
-    b: { k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' }
-};
+// Pieces - using images now. 
+// const PIECES = ... (Unused for 3D/Skeuomorphic variant, using images)
+
+function getPieceImage(pieceChar) {
+    const colorChar = pieceChar === pieceChar.toUpperCase() ? 'w' : 'b';
+    const typeChar = pieceChar.toLowerCase();
+    // Using Chess.com 'glass' theme for 3D effect
+    return `https://images.chesscomfiles.com/chess-themes/pieces/glass/150/${colorChar}${typeChar}.png`;
+}
 
 // Initial Board Setup (FEN-like logic but simple 2D array)
 const INITIAL_BOARD = [
@@ -43,14 +47,82 @@ let isAnimating = false;
 // Piece Values for Minimax
 const PIECE_VALUES = {
     p: 10, n: 30, b: 30, r: 50, q: 90, k: 900,
-    P: -10, N: -30, B: -30, R: -50, Q: -90, K: -900 // Negative for White (AI is Black usually maximizing, but we can flip logic)
+    P: -10, N: -30, B: -30, R: -50, Q: -90, K: -900 // Negative for White
 };
-// NOTE: We'll implement Minimax maximizing for BLACK (AI) and minimizing for WHITE.
-// White pieces are Positive? Actually usually White is Max, Black is Min.
-// Let's standard: White > 0, Black < 0.
-// So AI (Black) wants to Minimize the score. 
 
-let gameMode = 'ai'; // 'ai' or 'human'
+// Piece-Square Tables (Simplified for Black AI perspective - we will flip for White if needed, but currently AI is always Black)
+// These values are additive to the piece value.
+// Central squares are usually better.
+const PST_W = {
+    p: [
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [5, 5, 5, 5, 5, 5, 5, 5],
+        [1, 1, 2, 3, 3, 2, 1, 1],
+        [0.5, 0.5, 1, 2.5, 2.5, 1, 0.5, 0.5],
+        [0, 0, 0, 2, 2, 0, 0, 0],
+        [0.5, -0.5, -1, 0, 0, -1, -0.5, 0.5],
+        [0.5, 1, 1, -2, -2, 1, 1, 0.5],
+        [0, 0, 0, 0, 0, 0, 0, 0]
+    ],
+    n: [
+        [-5, -4, -3, -3, -3, -3, -4, -5],
+        [-4, -2, 0, 0, 0, 0, -2, -4],
+        [-3, 0, 1, 1.5, 1.5, 1, 0, -3],
+        [-3, 0.5, 1.5, 2, 2, 1.5, 0.5, -3],
+        [-3, 0, 1.5, 2, 2, 1.5, 0, -3],
+        [-3, 0.5, 1, 1.5, 1.5, 1, 0.5, -3],
+        [-4, -2, 0, 0.5, 0.5, 0, -2, -4],
+        [-5, -4, -3, -3, -3, -3, -4, -5]
+    ],
+    b: [
+        [-2, -1, -1, -1, -1, -1, -1, -2],
+        [-1, 0, 0, 0, 0, 0, 0, -1],
+        [-1, 0, 0.5, 1, 1, 0.5, 0, -1],
+        [-1, 0.5, 0.5, 1, 1, 0.5, 0.5, -1],
+        [-1, 0, 1, 1, 1, 1, 0, -1],
+        [-1, 1, 1, 1, 1, 1, 1, -1],
+        [-1, 0.5, 0, 0, 0, 0, 0.5, -1],
+        [-2, -1, -1, -1, -1, -1, -1, -2]
+    ],
+    r: [
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0.5, 1, 1, 1, 1, 1, 1, 0.5],
+        [-0.5, 0, 0, 0, 0, 0, 0, -0.5],
+        [-0.5, 0, 0, 0, 0, 0, 0, -0.5],
+        [-0.5, 0, 0, 0, 0, 0, 0, -0.5],
+        [-0.5, 0, 0, 0, 0, 0, 0, -0.5],
+        [-0.5, 0, 0, 0, 0, 0, 0, -0.5],
+        [0, 0, 0, 0.5, 0.5, 0, 0, 0]
+    ],
+    q: [
+        [-2, -1, -1, -0.5, -0.5, -1, -1, -2],
+        [-1, 0, 0, 0, 0, 0, 0, -1],
+        [-1, 0, 0.5, 0.5, 0.5, 0.5, 0, -1],
+        [-0.5, 0, 0.5, 0.5, 0.5, 0.5, 0, -0.5],
+        [0, 0, 0.5, 0.5, 0.5, 0.5, 0, -0.5],
+        [-1, 0.5, 0.5, 0.5, 0.5, 0.5, 0, -1],
+        [-1, 0, 0.5, 0, 0, 0, 0, -1],
+        [-2, -1, -1, -0.5, -0.5, -1, -1, -2]
+    ],
+    k: [
+        [-3, -4, -4, -5, -5, -4, -4, -3],
+        [-3, -4, -4, -5, -5, -4, -4, -3],
+        [-3, -4, -4, -5, -5, -4, -4, -3],
+        [-3, -4, -4, -5, -5, -4, -4, -3],
+        [-2, -3, -3, -4, -4, -3, -3, -2],
+        [-1, -2, -2, -2, -2, -2, -2, -1],
+        [2, 2, 0, 0, 0, 0, 2, 2],
+        [2, 3, 1, 0, 0, 1, 3, 2]
+    ]
+};
+
+// Mirror for Black
+const PST_B = {};
+['p', 'n', 'b', 'r', 'q', 'k'].forEach(key => {
+    PST_B[key] = PST_W[key].slice().reverse();
+});
+
+let gameMode = 'ai-easy'; // 'human', 'ai-easy', 'ai-medium', 'ai-hard'
 
 function initGame() {
     // Deep copy initial board
@@ -86,21 +158,30 @@ function renderBoard() {
     for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS; c++) {
             const square = document.createElement('div');
-            square.classList.add('square');
-            square.classList.add((r + c) % 2 === 0 ? 'light' : 'dark');
+            square.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
             square.dataset.r = r;
             square.dataset.c = c;
 
             const pieceChar = board[r][c];
             if (pieceChar) {
-                const color = getPieceColor(pieceChar);
-                square.textContent = PIECES[color === WHITE ? 'w' : 'b'][pieceChar.toLowerCase()];
-                square.classList.add('piece');
-                if (color === WHITE) square.style.color = '#fff';
-                else square.style.color = '#000';
+                // Image Based Rendering
+                const pieceImg = document.createElement('img');
+                pieceImg.src = getPieceImage(pieceChar);
+                pieceImg.alt = pieceChar;
+                pieceImg.className = 'piece';
 
-                // Better contrast for white pieces text shadow
-                if (color === WHITE) square.style.textShadow = '0 0 2px #000';
+                // Fallback to text if image fails
+                pieceImg.onerror = function () {
+                    this.style.display = 'none';
+                    const color = getPieceColor(pieceChar);
+                    square.textContent = getUnicodePiece(pieceChar);
+                    square.style.color = color === WHITE ? '#fff' : '#000';
+                    square.style.textShadow = color === WHITE ? '0 0 2px #000' : 'none';
+                    square.style.fontSize = "40px";
+                    square.classList.add('piece'); // Ensure click logic works
+                };
+
+                square.appendChild(pieceImg);
             }
 
             // Highlights
@@ -134,11 +215,22 @@ function renderBoard() {
     }
 }
 
+// Fallback Helper
+function getUnicodePiece(char) {
+    const PIECES_UNICODE = {
+        w: { k: '♔', q: '♕', r: '♖', b: '♗', n: '♘', p: '♙' },
+        b: { k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' }
+    };
+    const color = char === char.toUpperCase() ? 'w' : 'b';
+    const type = char.toLowerCase();
+    return PIECES_UNICODE[color][type];
+}
+
 function handleSquareClick(r, c) {
     if (!gameActive || isAnimating) return;
 
-    // Prevent Human from clicking if it's AI turn (and we are in AI mode)
-    if (gameMode === 'ai' && turn !== WHITE) return;
+    // Prevent Human from clicking if it's AI turn (and we are in an AI mode)
+    if (gameMode.startsWith('ai-') && turn !== WHITE) return;
 
     const clickedPiece = board[r][c];
     const clickedColor = clickedPiece ? getPieceColor(clickedPiece) : null;
@@ -165,7 +257,7 @@ function handleSquareClick(r, c) {
                 isAnimating = false;
 
                 // Trigger AI if applicable
-                if (gameActive && gameMode === 'ai' && turn === BLACK) {
+                if (gameActive && gameMode.startsWith('ai-') && turn === BLACK) {
                     setTimeout(() => {
                         makeAIMove();
                     }, 500); // Delay for realism
@@ -507,18 +599,42 @@ function makeAIMove() {
     // For "Basic" minimax, we often ignore updating EP/Castling rights deeply or make global assumptions.
     // We will do a best effort with current global 'castlingRights' frozen for the search root.
 
-    const depth = 2; // Keep it responsive. 3 might be slow in JS without optimization.
-    const bestMove = minimaxRoot(depth, board, true);
+    // Difficulty Logic
+    if (gameMode === 'ai-easy') {
+        makeRandomMove();
+        return;
+    }
 
-    if (bestMove) {
+    let depth = 2; // Default Medium
+    if (gameMode === 'ai-hard') depth = 3;
+
+    setTimeout(() => {
+        const bestMove = minimaxRoot(depth, board, true);
+        if (bestMove) {
+            isAnimating = true;
+            animateMove(bestMove).then(() => {
+                makeMove(bestMove, board, true);
+                renderBoard();
+                isAnimating = false;
+            });
+        } else {
+            // If No move found by minimax (shouldn't happen unless Checkmate/Stalemate which are handled elsewhere),
+            // fallback to random
+            makeRandomMove();
+        }
+    }, 100);
+}
+
+function makeRandomMove() {
+    const moves = getAllMoves(BLACK, board);
+    if (moves.length > 0) {
+        const randomMove = moves[Math.floor(Math.random() * moves.length)];
         isAnimating = true;
-        animateMove(bestMove).then(() => {
-            makeMove(bestMove, board, true);
+        animateMove(randomMove).then(() => {
+            makeMove(randomMove, board, true);
             renderBoard();
             isAnimating = false;
         });
-    } else {
-        console.log("AI has no moves? Mate?");
     }
 }
 
@@ -530,17 +646,45 @@ function evaluateBoard(currentBoard) {
             if (piece) {
                 totalEvaluation += PIECE_VALUES[piece] || 0;
 
-                // Positional Logic (Simplified: Central Control)
-                if (piece.toLowerCase() === 'p' || piece.toLowerCase() === 'n') {
-                    if (r >= 2 && r <= 5 && c >= 2 && c <= 5) {
-                        totalEvaluation += (getPieceColor(piece) === WHITE ? 2 : -2);
+                // PST Logic
+                const type = piece.toLowerCase();
+                if (type !== 'k') { // King PST is complex with endgame, simplified here
+                    if (getPieceColor(piece) === WHITE) {
+                        // PST_W is for White
+                        if (PST_W[type] && PST_W[type][r] && PST_W[type][r][c] !== undefined) {
+                            totalEvaluation += PST_W[type][7 - r][c]; // Note: PST defined 0..7, board 0..7. 
+                            // Actually standard PSTs are usually Rank 1 (index 7) to Rank 8 (index 0).
+                            // My PST_W above: Row 0 is Rank 8? No, let's assume Row 0 is Rank 8 (Top) as per visual board array.
+                            // Wait, Row 0 in array is Rank 8 (Black side).
+                            // Row 7 in array is Rank 1 (White side).
+                            // My PST_W definition:
+                            // p row 1: [5,5...] -> This is usually Rank 7 (pawns about to promote).
+                            // p row 6: [0.5, 1...]. This is Rank 2 (start).
+                            // So my PST_W is defined such that Index 0 is Rank 8.
+                            // But White pawns start at Row 6 (Rank 2).
+                            // Let's check my PST_W for 'p':
+                            // Row 6 (Rank 2): [0.5, 1, 1, -2, -2, 1, 1, 0.5] -> Reasonable starting penalty/bonus?
+                            // Actually, standard PST:
+                            // Pawn: Rank 7 (Index 1) is 50 (high). Rank 2 (Index 6) is 5.
+                            // My PST_W: Row 1 is 5. Correct.
+                            // So PST_W matches board coordinates (Row 0 = Rank 8).
+                            totalEvaluation += PST_W[type][r][c];
+                        }
+                    } else {
+                        // Black
+                        // PST_B is reversed PST_W.
+                        if (PST_B[type] && PST_B[type][r] && PST_B[type][r][c] !== undefined) {
+                            totalEvaluation -= PST_B[type][r][c]; // Subtract because Black wants to Minimize, and these are bonuses for Black.
+                            // Wait, PIECE_VALUES for Black are Negative (e.g., -10).
+                            // If Black has a good position, we want the score to be MORE Negative?
+                            // Yes. So if PST says +5 (good spot), we SUBTRACT 5.
+                        }
                     }
                 }
             }
         }
     }
     return totalEvaluation;
-    // Positive = White advantage, Negative = Black advantage.
 }
 
 function minimaxRoot(depth, currentBoard, isMaximizingPlayer) {
@@ -590,9 +734,9 @@ function minimax(depth, currentBoard, alpha, beta, isMaximizingPlayer) {
 
         for (let i = 0; i < moves.length; i++) {
             const nextBoard = simulateMove(moves[i], currentBoard);
-            const eval = minimax(depth - 1, nextBoard, alpha, beta, false);
-            maxEval = Math.max(maxEval, eval);
-            alpha = Math.max(alpha, eval);
+            const score = minimax(depth - 1, nextBoard, alpha, beta, false);
+            maxEval = Math.max(maxEval, score);
+            alpha = Math.max(alpha, score);
             if (beta <= alpha) break;
         }
         return maxEval;
@@ -603,9 +747,9 @@ function minimax(depth, currentBoard, alpha, beta, isMaximizingPlayer) {
 
         for (let i = 0; i < moves.length; i++) {
             const nextBoard = simulateMove(moves[i], currentBoard);
-            const eval = minimax(depth - 1, nextBoard, alpha, beta, true);
-            minEval = Math.min(minEval, eval);
-            beta = Math.min(beta, eval);
+            const score = minimax(depth - 1, nextBoard, alpha, beta, true);
+            minEval = Math.min(minEval, score);
+            beta = Math.min(beta, score);
             if (beta <= alpha) break;
         }
         return minEval;
@@ -617,69 +761,98 @@ function animateMove(move) {
         const fromSquare = document.querySelector(`.square[data-r="${move.from.r}"][data-c="${move.from.c}"]`);
         const toSquare = document.querySelector(`.square[data-r="${move.to.r}"][data-c="${move.to.c}"]`);
 
-        // If for some reason squares aren't found, skip animation
         if (!fromSquare || !toSquare) {
             resolve();
             return;
         }
 
-        const pieceElement = fromSquare.querySelector('.piece'); // Assumes text node is inside the div directly or handled similarly? 
-        // Actually, in renderBoard, square.textContent has the piece
-        // But to animate properly, we need an element.
-        // renderBoard sets textContent. We can't transform textNode easily.
-        // Let's create a clone element for animation.
+        // Target the PIECE IMAGE specifically
+        const pieceImg = fromSquare.querySelector('img.piece');
 
-        const clone = document.createElement('div');
-        clone.textContent = fromSquare.textContent;
-        clone.className = fromSquare.className;
-        // Important: copy computed styles or at least specific sizing/positioning
+        if (!pieceImg) {
+            // If no image found (maybe invisible or lag), just resolve
+            resolve();
+            return;
+        }
+
+        // Clone ONLY the image
+        const clone = pieceImg.cloneNode(true);
+
+        // Get Rects
+        const fromRect = pieceImg.getBoundingClientRect(); // Use image rect, not square
+        const toRect = toSquare.getBoundingClientRect(); // Target square center 
+        // Note: toSquare might be empty, so use its rect. 
+        // Ideally we want to center the piece in the toSquare.
+
+        // Calculate centered position in toSquare
+        // The piece size is roughly 90% of square (from CSS).
+        // Let's just animate to toSquare's top-left + padding?
+        // Or simpler: clone current rect, animate to target rect.
+
+        const startLeft = fromRect.left + window.scrollX;
+        const startTop = fromRect.top + window.scrollY;
+
+        // We want the destination to be where the piece WOULD be.
+        // Since pieces are centered/sized by flexbox in square, 
+        // let's assume destination rect matches the target square's content box roughly.
+        // Actually, easiest is to trust the delta between squares.
+        const destLeft = toRect.left + window.scrollX + (toRect.width - fromRect.width) / 2;
+        const destTop = toRect.top + window.scrollY + (toRect.height - fromRect.height) / 2;
+
+        // Setup Clone
         clone.style.position = 'absolute';
-        clone.style.zIndex = '1000';
-        clone.style.pointerEvents = 'none';
-
-        // Get coordinates
-        const fromRect = fromSquare.getBoundingClientRect();
-        const toRect = toSquare.getBoundingClientRect();
-
+        clone.style.left = `${startLeft}px`;
+        clone.style.top = `${startTop}px`;
         clone.style.width = `${fromRect.width}px`;
         clone.style.height = `${fromRect.height}px`;
-        clone.style.left = `${fromRect.left + window.scrollX}px`;
-        clone.style.top = `${fromRect.top + window.scrollY}px`;
-        clone.style.display = 'flex';
-        clone.style.justifyContent = 'center';
-        clone.style.alignItems = 'center';
-
-        // Copy explicit styles if any (like color from inline logic if reverted)
-        if (fromSquare.style.color) clone.style.color = fromSquare.style.color;
-        if (fromSquare.style.textShadow) clone.style.textShadow = fromSquare.style.textShadow;
+        clone.style.zIndex = '9999';
+        clone.style.pointerEvents = 'none';
+        clone.style.transform = 'translate(0, 0)';
+        clone.style.willChange = 'transform';
 
         document.body.appendChild(clone);
 
-        // Hide original immediately
-        fromSquare.style.opacity = '0'; // Actually we can just keep it until we overwrite content
+        // Hide original
+        pieceImg.style.visibility = 'hidden';
+        // visibility:hidden keeps layout but hides pixels. opacity:0 works too.
 
         // Animate
+        const deltaX = destLeft - startLeft;
+        const deltaY = destTop - startTop;
+
+        // Using Web Anim API for better performance/control than CSS class
         const animation = clone.animate([
-            { transform: 'translate(0, 0)' },
-            { transform: `translate(${toRect.left - fromRect.left}px, ${toRect.top - fromRect.top}px)` }
+            { transform: 'translate(0px, 0px)' },
+            { transform: `translate(${deltaX}px, ${deltaY}px)` }
         ], {
-            duration: 200,
-            easing: 'ease-in-out'
+            duration: 300,
+            easing: 'cubic-bezier(0.25, 1, 0.5, 1)' // smooth ease out
         });
 
         animation.onfinish = () => {
             clone.remove();
-            fromSquare.style.opacity = '1'; // Restore just in case
+            pieceImg.style.visibility = 'visible'; // Restore (logic will move it shortly after resolve)
             resolve();
         };
+
+        // Fallback safety
+        setTimeout(() => {
+            if (document.body.contains(clone)) {
+                clone.remove();
+                resolve();
+            }
+        }, 350);
     });
 }
 
 // --- UI Helpers ---
 
 function updateStatus() {
-    if (gameMode === 'ai') {
-        statusElement.textContent = `Giliran: ${turn === WHITE ? 'Putih (Anda)' : 'Hitam (AI Thinking...)'}`;
+    if (gameMode.startsWith('ai-')) {
+        let diff = 'Mudah';
+        if (gameMode === 'ai-medium') diff = 'Sedang';
+        if (gameMode === 'ai-hard') diff = 'Sulit';
+        statusElement.textContent = `Giliran: ${turn === WHITE ? 'Putih (Anda)' : `Hitam (AI ${diff} Thinking...)`}`;
     } else {
         statusElement.textContent = `Giliran: ${turn === WHITE ? 'Putih (Player 1)' : 'Hitam (Player 2)'}`;
     }

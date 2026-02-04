@@ -4,19 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catur Single Player (Minimax AI)</title>
+    <title>Catur Web (Minimax AI)</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <div class="project-nav-container">
-        <a href="../#projects" class="project-nav-link">
+        <a href="../basic-chess/" class="project-nav-link">
             <img src="../assets/img/spinotek-logo.png" alt="Spinotek" class="nav-logo h-5">
             <span class="nav-separator">|</span>
             <img src="../assets/img/logo-hima-ti.png" alt="HIMA TI" class="nav-logo h-6">
             <span class="nav-separator">|</span>
-            <img src="../assets/img/icon-polihasnur.png" alt="HIMA TI" class="nav-logo h-6">
+            <img src="../assets/img/polihasnur-logo.png" alt="POLIHASNUR" class="nav-logo h-10">
         </a>
     </div>
 
@@ -42,8 +42,10 @@
 
         <div class="controls">
             <select id="game-mode" onchange="resetGame()">
-                <option value="ai">vs AI</option>
                 <option value="human">vs Player (Offline)</option>
+                <option value="ai-easy" selected>vs AI (Easy)</option>
+                <option value="ai-medium">vs AI (Medium)</option>
+                <option value="ai-hard">vs AI (Hard)</option>
             </select>
             <button id="restart-btn" onclick="resetGame()">Mulai Ulang</button>
         </div>
