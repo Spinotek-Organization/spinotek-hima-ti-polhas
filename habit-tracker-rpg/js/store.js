@@ -115,6 +115,12 @@ window.Store = {
         save();
     },
 
+    addHabit(habitData) {
+        state.habits.push(habitData);
+        save();
+        notify(); // Triggers UI re-render
+    },
+
     reset() {
         state = JSON.parse(JSON.stringify(getInitialState()));
         save();

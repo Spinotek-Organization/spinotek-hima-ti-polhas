@@ -15,7 +15,10 @@ function init() {
     // 2. Init UI (finds DOM elements)
     window.UI.init();
 
-    // 3. Initial Render
+    // 3. Init Ritual (Drag & Drop)
+    if (window.Ritual) window.Ritual.init();
+
+    // 4. Initial Render
     window.UI.render(state);
 
     // Subscribe UI to State changes

@@ -12,6 +12,40 @@
     <div id="app" class="cyber-interface">
         <div class="scanline"></div>
 
+        <!-- Memory Core (Ritual Source) -->
+        <aside id="memory-core" class="memory-core cy-panel collapsed">
+            <div class="panel-header" onclick="window.UI.toggleMemoryCore()">
+                <span class="cy-icon">🧠</span> MEMORY_CORE
+            </div>
+            <div class="core-content">
+                <div class="core-desc">
+                    DRAG ghost protocol to Neural Interface to init.
+                </div>
+                <div class="ghost-container">
+                    <div class="habit-item ghost-template" draggable="true"
+                        data-template='{"name": "Read Tech Article", "difficulty": "EASY"}'>
+                        <span class="habit-name">READ_DATA</span>
+                        <span class="habit-meta">[EASY]</span>
+                    </div>
+                    <div class="habit-item ghost-template" draggable="true"
+                        data-template='{"name": "Code Side Project", "difficulty": "HARD"}'>
+                        <span class="habit-name">BUILD_CONSTRUCT</span>
+                        <span class="habit-meta">[HARD]</span>
+                    </div>
+                    <div class="habit-item ghost-template" draggable="true"
+                        data-template='{"name": "Workout Algorithm", "difficulty": "MEDIUM"}'>
+                        <span class="habit-name">PHYSICAL_TUNING</span>
+                        <span class="habit-meta">[MEDIUM]</span>
+                    </div>
+                    <div class="habit-item ghost-template" draggable="true"
+                        data-template='{"name": "Deep Focus", "difficulty": "HARD"}'>
+                        <span class="habit-name">DEEP_DIVE</span>
+                        <span class="habit-meta">[HARD]</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
         <!-- Dashboard Section -->
         <header class="dashboard cy-panel">
             <div class="panel-header">
@@ -85,6 +119,7 @@
     <script src="js/rpgLogic.js"></script>
     <script src="js/store.js"></script>
     <script src="js/ui.js"></script>
+    <script src="js/ritual.js"></script>
     <script src="js/app.js"></script>
 </body>
 

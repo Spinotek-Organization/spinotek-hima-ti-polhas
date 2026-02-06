@@ -27,6 +27,14 @@ window.UI = {
         renderDashboard(state.character);
         renderHabits(state.habits);
         renderLogs(state.logs);
+    },
+
+    toggleMemoryCore() {
+        const core = document.getElementById('memory-core');
+        if (core) {
+            core.classList.toggle('collapsed');
+            core.classList.toggle('active');
+        }
     }
 };
 
