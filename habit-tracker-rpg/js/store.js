@@ -24,6 +24,11 @@ function getInitialState() {
                 vitalCore: 0,
                 learningAmplifier: 0,
                 failureDampener: 0
+            },
+            flags: {
+                hasFainted: false,
+                hasUpgraded: false,
+                faintCount: 0
             }
         },
         habits: [
@@ -171,8 +176,22 @@ window.Store = {
         const result = purchaseUpgrade(char, type);
 
         if (result.success) {
+            // Narrative Flag
+            if (!state.character.flags) state.character.flags = { hasUpgraded: false };
+            if (!state.character.flags.hasUpgraded) {
+                this.addLogEntry('HARDWARE DETECTED: Initialization of first augmentation successful.', 'UPGRADE', 'SUCCESS');
+                state.character.flags.hasUpgraded = true;
+            }
+
             state.character = result.character;
-            addLog(`SYSTEM: Core Augmentation installed: ${result.upgradeName} (Lvl ${result.newLevel})`, 'success');
+            // Persist flag changes (result.character might not have them if RPG logic didn't pass them back)
+            // Actually RPG logic returns {...character, ...} so it should preserve flags if they existed.
+            // But we just added flags to state.character above.
+            // Let's ensure they are synced. 
+            state.character.flags = state.character.flags || {};
+            state.character.flags.hasUpgraded = true;
+
+            this.addLogEntry(`Augmentation installed: ${result.upgradeName} (Lvl ${result.newLevel})`, 'UPGRADE', 'SUCCESS');
             save();
         } else {
             addLog(`SYSTEM: Upgrade Error: ${result.reason}`, 'failure');
@@ -220,6 +239,97 @@ window.Store = {
 
     reset() {
         state = JSON.parse(JSON.stringify(getInitialState()));
+        save();
+    },
+
+    /**
+     * Core Action: Execute Habit
+     * Handles Logic + Narrative + State Update
+     */
+    executeHabit(habitId) {
+        this.validateState();
+        const habit = state.habits.find(h => h.id === habitId);
+        if (!habit) return;
+
+        // RPG Logic
+        const result = window.RPG.executeHabit(state.character, habit.difficulty);
+
+        // Narrative & Logging
+        if (result._justRecovered) {
+            this.addLogEntry(`SYSTEM: Recovery complete. Character stabilized.`, 'SYSTEM', 'SUCCESS');
+        }
+
+        let msg = `+${result.currentExp - state.character.currentExp} EXP from '${habit.name}'`;
+        let severity = 'SUCCESS';
+
+        if (state.character.status === window.RPG.CHARACTER_STATUS.FAINTED && !result._justRecovered) {
+            msg += ` (PENALTY APPLIED)`;
+            severity = 'WARN';
+        }
+
+        if (result._leveledUp) {
+            msg += ` | LEVEL UP! Now Level ${result.level}.`;
+            // Milestone Narrative
+            if (result.level % 5 === 0) {
+                this.addLogEntry(`MILESTONE: Level ${result.level} Reached. Performance limits broken.`, 'SYSTEM', 'SUCCESS');
+            } else {
+                this.addLogEntry(`LEVEL UP: You have reached Level ${result.level}!`, 'SYSTEM', 'SUCCESS');
+            }
+        }
+
+        this.addLogEntry(msg, 'HABIT', severity);
+
+        // Update State
+        state.character = result;
+
+        // Update Habit Streak (Simple increment for now, logic not in RPG yet?)
+        // Assuming simplistic streak logic resides in Store or App usually, but sticking to result usage.
+        // Wait, RPG logic didn't return updated habits. We must update habit manually here?
+        // Previous app.js didn't update habit streak! It just accessed logic. 
+        // We should fix that too as a bonus or stick to previous behavior?
+        // Looking at app.js: "const habit = state.habits.find..." -> "executeHabit(state.character...)" -> "Store.updateCharacter".
+        // Use "streak" from somewhere? No, streak was in habit object but logic didn't update it.
+        // I will increment streak here to improve it.
+        habit.streak = (habit.streak || 0) + 1;
+
+        save();
+    },
+
+    /**
+     * Core Action: Abort Habit
+     */
+    abortHabit(habitId) {
+        this.validateState();
+        const habit = state.habits.find(h => h.id === habitId);
+        if (!habit) return;
+
+        // RPG Logic
+        const result = window.RPG.abortHabit(state.character, habit.difficulty);
+        const hpLost = state.character.hp - result.hp;
+
+        // Narrative Logic
+        if (result.status === window.RPG.CHARACTER_STATUS.FAINTED && state.character.status !== window.RPG.CHARACTER_STATUS.FAINTED) {
+            // Just Fainted
+            const flags = state.character.flags || { faintCount: 0 };
+            flags.faintCount = (flags.faintCount || 0) + 1;
+            flags.hasFainted = true;
+            result.flags = flags;
+
+            if (flags.faintCount === 1) {
+                this.addLogEntry(`CRITICAL ALERT: Life Signs Critical. First shutdown imminent.`, 'SYSTEM', 'CRITICAL');
+            } else {
+                this.addLogEntry(`SYSTEM FAILURE. Reboot sequence initiated. (Occurrence #${flags.faintCount})`, 'SYSTEM', 'ERROR');
+            }
+
+            this.addLogEntry(`[SYSTEM WARNING] Vital core depleted. EXP gain reduced for 24h.`, 'COMBAT', 'ERROR');
+        } else {
+            this.addLogEntry(`FAILED '${habit.name}'. -${hpLost} HP.`, 'COMBAT', 'WARN');
+        }
+
+        // Reset Streak
+        habit.streak = 0;
+
+        state.character = result;
         save();
     }
 };

@@ -36,42 +36,12 @@ function handleAction(actionType, habitId) {
     const state = window.Store.getState();
     const habit = state.habits.find(h => h.id === habitId);
 
-    // Access RPG logic lazily
-    const { executeHabit, abortHabit } = window.RPG;
-
     if (!habit) return;
 
     if (actionType === 'exec') {
-        const result = executeHabit(state.character, habit.difficulty);
-        window.Store.updateCharacter(result);
-
-        // Check for recovery flag from logic
-        if (result._justRecovered) {
-            window.Store.addLogEntry(`SYSTEM: Recovery complete. Character stabilized.`, 'system');
-        }
-
-        let msg = `+${result.currentExp - state.character.currentExp} EXP from '${habit.name}'`;
-        if (state.character.status === 'FAINTED' && !result._justRecovered) {
-            msg += ` (PENALTY APPLIED)`;
-        }
-
-        if (result._leveledUp) {
-            msg += ` | LEVEL UP! Now Level ${result.level}.`;
-            window.Store.addLogEntry(`LEVEL UP: You have reached Level ${result.level}!`, 'system');
-        }
-
-        window.Store.addLogEntry(msg, 'success');
-
+        window.Store.executeHabit(habitId);
     } else if (actionType === 'abort') {
-        const result = abortHabit(state.character, habit.difficulty);
-        const hpLost = state.character.hp - result.hp;
-
-        window.Store.updateCharacter(result);
-        window.Store.addLogEntry(`FAILED '${habit.name}'. -${hpLost} HP.`, 'failure');
-
-        if (result.status === 'FAINTED' && state.character.status !== 'FAINTED') {
-            window.Store.addLogEntry(`[SYSTEM WARNING] Vital core depleted. EXP gain reduced for 24h. Recovery protocol active.`, 'failure');
-        }
+        window.Store.abortHabit(habitId);
     }
 }
 
