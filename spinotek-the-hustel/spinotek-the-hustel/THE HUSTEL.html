@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE HUSTLE - Platform Kerja Instan</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
+                        'bounce-slight': 'bounceSlight 0.3s ease-in-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        bounceSlight: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(0.97)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* GLOBAL STYLES */
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+
+        /* Utility Classes Awal & Sistem */
+        .bg-grid {
+            background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+            background-size: 40px 40px;
+        }
+
+        .glow-text {
+            text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .blue-gradient {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        }
+
+        .modal-blur {
+            backdrop-filter: blur(12px);
+            background: rgba(15, 23, 42, 0.65);
+        }
+
+        .nav-active {
+            color: white !important;
+            background: #2563eb !important;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        /* Interactive Animations */
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .btn-press {
+            transition: transform 0.1s, box-shadow 0.3s;
+        }
+
+        .btn-press:active {
+            transform: scale(0.95);
+        }
+
+        .input-glow:focus,
+        .input-focus:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+            outline: none;
+        }
+
+        .category-pill {
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #e2e8f0;
+        }
+
+        .category-pill:hover {
+            border-color: #2563eb;
+            color: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .category-pill.active {
+            background-color: #2563eb;
+            color: white;
+            border-color: #2563eb;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+
+        /* VIEW LOGIC (SPA) */
+        .view-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .view-section.active {
+            display: block;
+            opacity: 1;
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        section#view-login.active {
+            display: flex !important;
+            opacity: 1;
+        }
+
+        /* DARK MODE SUPPORT */
+        .dark body {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .dark .bg-white {
+            background-color: #1e293b;
+            border-color: #334155;
+        }
+
+        .dark .text-zinc-800 {
+            color: #f1f5f9;
+        }
+
+        .dark .text-zinc-500 {
+            color: #94a3b8;
+        }
+
+        .dark .text-zinc-400 {
+            color: #cbd5e1;
+        }
+
+        .dark .border-zinc-100,
+        .dark .border-zinc-200 {
+            border-color: #334155;
+        }
+
+        .dark .bg-zinc-50 {
+            background-color: #334155;
+        }
+
+        .dark input,
+        .dark textarea,
+        .dark select {
+            background-color: #334155;
+            color: white;
+            border-color: #475569;
+        }
+
+        .dark .nav-active {
+            background-color: #2563eb !important;
+            color: white !important;
+        }
+
+        .dark .card-hover:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Khusus halaman Landing dan Login selalu mempertahankan estetika gelap */
+        #view-landing,
+        #view-login {
+            background-color: #050505;
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="bg-[#f8fafc] text-zinc-800 transition-colors duration-300 selection:bg-blue-100 selection:text-blue-700">
+
+    <nav id="system-top-nav"
+        class="hidden bg-white/80 backdrop-blur-md dark:bg-zinc-900/90 border-b border-zinc-100 dark:border-zinc-800 px-6 py-4 fixed top-0 w-full z-50 transition-colors duration-300">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer group btn-press" onclick="navigateTo('home')">
+                <div
+                    class="bg-blue-600 rounded-lg p-1.5 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">
+                    <i data-lucide="zap" class="w-5 h-5 text-white fill-white"></i>
+                </div>
+                <h1
+                    class="text-2xl font-extrabold tracking-tight dark:text-white group-hover:text-blue-600 transition-colors">
+                    THE HUSTLE</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="toggleTheme()"
+                    class="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300 hover:scale-110 transition-transform btn-press">
+                    <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+                    <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-yellow-400"></i>
+                </button>
+                <div class="flex items-center gap-3 cursor-pointer group btn-press" onclick="navigateTo('profile')">
+                    <div class="text-right hidden sm:block">
+                        <p
+                            class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-0.5 group-hover:text-blue-500 transition-colors">
+                            Mahasiswa</p>
+                        <p id="nav-user-name"
+                            class="text-sm font-bold text-zinc-900 leading-none dark:text-white group-hover:text-blue-600 transition-colors">
+                            User</p>
+                    </div>
+                    <div id="nav-user-initial"
+                        class="w-10 h-10 rounded-full bg-blue-100 border-2 border-blue-200 group-hover:border-blue-500 group-hover:scale-110 flex items-center justify-center text-blue-600 font-bold transition-all shadow-sm">
+                        U</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section id="view-landing" class="view-section active min-h-screen relative overflow-hidden">
+        <div class="absolute inset-0 bg-grid opacity-30 pointer-events-none"></div>
+        <div
+            class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/20 blur-[120px] rounded-full pointer-events-none">
+        </div>
+
+        <nav
+            class="bg-black/50 backdrop-blur-md border-b border-white/10 px-6 py-4 fixed top-0 w-full z-50 transition-all">
+            <div class="max-w-6xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-2 btn-press cursor-pointer" onclick="navigateTo('landing')">
+                    <h1 class="text-2xl font-extrabold tracking-tight text-white">THE <span
+                            class="text-blue-500">HUSTLE</span></h1>
+                </div>
+                <div class="hidden md:flex gap-8 text-sm font-semibold text-zinc-400">
+                    <button onclick="navigateTo('landing')" class="hover:text-white transition-colors">Home</button>
+                    <button onclick="navigateTo('cara-kerja')" class="hover:text-white transition-colors">Cara
+                        Kerja</button>
+                    <button class="cursor-default opacity-50 hover:text-zinc-400">Komunitas</button>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTheme()"
+                        class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all btn-press">
+                        <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+                        <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-yellow-400"></i>
+                    </button>
+                    <button onclick="navigateTo('about')"
+                        class="bg-white text-black px-6 py-2.5 rounded-full text-sm font-bold hover:bg-indigo-500 hover:text-white transition-all shadow-lg hover:shadow-indigo-500/30 btn-press">About
+                        Hustle</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="max-w-5xl mx-auto px-6 pt-40 pb-10 text-center relative z-10">
+            <div
+                class="inline-flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-4 py-1.5 rounded-full mb-6 shadow-lg shadow-black/50 hover:scale-105 transition-transform cursor-default">
+                <span class="relative flex h-2 w-2">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-300">1,240 Proyek Baru Hari
+                    Ini</span>
+            </div>
+
+            <h1
+                class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-[1.1] text-white animate-fade-in-up">
+                Dapetin Cuan <br>
+                <span
+                    class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent glow-text inline-block hover:scale-105 transition-transform duration-300">Sat-Set
+                    Tanpa Ribet.</span>
+            </h1>
+
+            <p class="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up"
+                style="animation-delay: 0.1s;">
+                Platform "Penyambung Lidah" antara Gen-Z yang butuh jasa instan dan Freelancer yang siap gercep, No
+                birokrasi, And just results.
+            </p>
+
+            <div class="flex flex-col md:flex-row justify-center gap-4 animate-fade-in-up"
+                style="animation-delay: 0.2s;">
+                <button onclick="actionButtonAuth()"
+                    class="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] btn-press">
+                    <i data-lucide="zap" class="w-5 h-5 fill-white"></i> Cari Kerja Cepat
+                </button>
+                <button onclick="actionButtonAuth()"
+                    class="bg-zinc-900 border border-zinc-800 text-white hover:border-zinc-600 hover:bg-zinc-800 px-8 py-4 rounded-2xl font-bold text-lg transition-all hover:-translate-y-1 shadow-lg btn-press">
+                    Post Project (Gratis)
+                </button>
+            </div>
+
+            <div class="mt-20 pt-8 border-t border-white/10 animate-fade-in-up" style="animation-delay: 0.3s;">
+                <p class="text-zinc-500 text-[10px] font-extrabold uppercase tracking-[3px] mb-8">Supported By</p>
+                <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-90">
+                    <div class="flex flex-col items-center gap-3 group">
+                        <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center p-2 shadow-lg hover:scale-110 transition-transform duration-300 overflow-hidden">
+                            <img src="WhatsApp Image 2026-02-17 at 12.05.13.jpeg" alt="Politeknik Hasnur" class="w-full h-full object-contain">
+                        </div>
+                        <span class="text-zinc-500 text-[10px] font-bold group-hover:text-white transition-colors uppercase tracking-wider">Politeknik Hasnur</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-3 group">
+                        <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center p-2 shadow-lg hover:scale-110 transition-transform duration-300 overflow-hidden">
+                            <img src="logo hima.jpeg" alt="HMTI" class="w-full h-full object-contain">
+                        </div>
+                        <span class="text-zinc-500 text-[10px] font-bold group-hover:text-white transition-colors uppercase tracking-wider">HMTI</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-3 group">
+                        <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center p-2 shadow-lg hover:scale-110 transition-transform duration-300 overflow-hidden">
+                            <img src="WhatsApp Image 2026-02-17 at 12.05.25.jpeg" alt="Spinotek" class="w-full h-full object-contain">
+                        </div>
+                        <span class="text-zinc-500 text-[10px] font-bold group-hover:text-white transition-colors uppercase tracking-wider">Spinotek</span>
+                    </div>
+                </div>
+            </div>
+            </div>
+    </section>
+
+    <section id="view-cara-kerja" class="view-section min-h-screen pt-24 px-6 pb-24 dark:bg-zinc-950">
+        <nav
+            class="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-800 px-6 py-4 fixed top-0 w-full z-50 left-0 transition-colors">
+            <div class="max-w-5xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-2 btn-press cursor-pointer" onclick="navigateTo('landing')">
+                    <h1 class="text-2xl font-extrabold tracking-tight text-zinc-800 dark:text-white">THE <span
+                            class="text-blue-500">HUSTLE</span></h1>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTheme()"
+                        class="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300 hover:scale-110 transition-transform btn-press">
+                        <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+                        <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-yellow-400"></i>
+                    </button>
+                    <button onclick="navigateTo('landing')"
+                        class="text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1 transition-colors btn-press">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="max-w-4xl mx-auto pt-10 text-zinc-800 dark:text-zinc-100">
+            <section class="text-center mb-16 animate-fade-in-up">
+                <h2 class="text-4xl font-extrabold tracking-tighter mb-4 text-zinc-800 dark:text-white">Dapetin Cuan
+                    <br><span class="text-blue-600 font-black italic">Sat-Set Tanpa Ribet.</span></h2>
+                <p class="text-zinc-500 dark:text-zinc-400 max-w-xl mx-auto leading-relaxed">
+                    Kami memangkas birokrasi panjang untuk menghubungkan bakat kreatif dengan peluang nyata dalam
+                    hitungan menit.
+                </p>
+            </section>
+
+            <div class="space-y-12 relative text-zinc-800 dark:text-zinc-200">
+                <div class="flex flex-col md:flex-row gap-8 items-start relative group animate-fade-in-up"
+                    style="animation-delay: 0.1s;">
+                    <div
+                        class="bg-blue-600 w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-xl z-10 flex-shrink-0 shadow-lg shadow-blue-200 dark:shadow-blue-900 group-hover:scale-110 group-hover:rotate-6 transition-transform">
+                        1</div>
+                    <div
+                        class="bg-white dark:bg-zinc-800 p-8 rounded-[2.5rem] shadow-sm border border-zinc-100 dark:border-zinc-700 flex-1 card-hover">
+                        <div class="flex items-center gap-3 mb-4"><i data-lucide="user-plus"
+                                class="text-blue-600 w-6 h-6"></i>
+                            <h4 class="text-xl font-bold text-zinc-800 dark:text-white">Daftar & Bangun Reputasi</h4>
+                        </div>
+                        <p class="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed mb-4">Mulai dengan membuat
+                            akun menggunakan Email atau WhatsApp aktif. THE HUSTLE, reputasi bukan hanya soal CV, tapi
+                            soal **Poin Keaktifan**.</p>
+                        <div
+                            class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800 flex items-center gap-4">
+                            <div
+                                class="text-blue-600 dark:text-blue-400 font-bold text-lg leading-none uppercase tracking-tighter">
+                                Poin Keaktifan</div>
+                            <div class="text-blue-900 dark:text-blue-300 font-black text-2xl tracking-tighter">1.250
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-8 items-start relative group animate-fade-in-up"
+                    style="animation-delay: 0.2s;">
+                    <div
+                        class="bg-zinc-900 dark:bg-zinc-700 w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-xl z-10 flex-shrink-0 group-hover:scale-110 transition-transform">
+                        2</div>
+                    <div
+                        class="bg-white dark:bg-zinc-800 p-8 rounded-[2.5rem] shadow-sm border border-zinc-100 dark:border-zinc-700 flex-1 card-hover">
+                        <div class="flex items-center gap-3 mb-4"><i data-lucide="search"
+                                class="text-orange-600 w-6 h-6"></i>
+                            <h4 class="text-xl font-bold text-zinc-800 dark:text-white">Cari Project Visual</h4>
+                        </div>
+                        <p class="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">Nikmati konten pekerjaan
+                            yang cepat dan visual. Kami menyajikan daftar project terbaru dalam bentuk kartu informasi.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-8 items-start relative group animate-fade-in-up"
+                    style="animation-delay: 0.3s;">
+                    <div
+                        class="bg-blue-600 w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-xl z-10 flex-shrink-0 shadow-lg shadow-blue-200 dark:shadow-blue-900 group-hover:scale-110 transition-transform">
+                        3</div>
+                    <div
+                        class="bg-white dark:bg-zinc-800 p-8 rounded-[2.5rem] shadow-sm border border-zinc-100 dark:border-zinc-700 flex-1 card-hover">
+                        <div class="flex items-center gap-3 mb-4"><i data-lucide="zap"
+                                class="text-yellow-500 w-6 h-6"></i>
+                            <h4 class="text-xl font-bold text-zinc-800 dark:text-white">Interaksi Instan</h4>
+                        </div>
+                        <p class="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">Pencet tombol **apply** atau
+                            kirim pesan secara langsung. Tidak ada proses menunggu berminggu-minggu.</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-8 items-start relative group animate-fade-in-up"
+                    style="animation-delay: 0.4s;">
+                    <div
+                        class="bg-zinc-800 dark:bg-zinc-700 w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-xl z-10 flex-shrink-0 group-hover:scale-110 transition-transform">
+                        4</div>
+                    <div
+                        class="bg-white dark:bg-zinc-800 p-8 rounded-[2.5rem] shadow-sm border border-zinc-100 dark:border-zinc-700 flex-1 card-hover">
+                        <div class="flex items-center gap-3 mb-4"><i data-lucide="check-circle"
+                                class="text-green-600 w-6 h-6"></i>
+                            <h4 class="text-xl font-bold text-zinc-800 dark:text-white">Selesaikan & Klaim Poin</h4>
+                        </div>
+                        <p class="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">Selesaikan pekerjaan,
+                            berikan hasil terbaik, dan bangun komunitas melalui validasi sosial.</p>
+                    </div>
+                </div>
+            </div>
+
+            <section class="mt-20 text-center animate-fade-in-up" style="animation-delay: 0.5s;">
+                <h3 class="text-2xl font-bold mb-6 text-zinc-800 dark:text-white">Siap untuk mulai?</h3>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button onclick="actionButtonAuth()"
+                        class="bg-blue-600 text-white px-8 py-4 rounded-[2rem] font-bold shadow-lg shadow-blue-200 dark:shadow-blue-900/50 flex items-center gap-2 hover:bg-blue-700 hover:-translate-y-1 transition-all btn-press">
+                        <i data-lucide="briefcase"></i> Cari Kerja Cepat
+                    </button>
+                    <button onclick="actionButtonAuth()"
+                        class="bg-white dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-white px-8 py-4 rounded-[2rem] font-bold hover:border-blue-600 hover:text-blue-600 dark:hover:border-blue-400 dark:hover:text-blue-400 hover:-translate-y-1 transition-all btn-press">
+                        Post Project (Gratis)
+                    </button>
+                </div>
+            </section>
+        </main>
+    </section>
+
+    <section id="view-about" class="view-section min-h-screen pt-24 px-6 pb-24 dark:bg-zinc-950">
+        <nav
+            class="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-800 px-6 py-4 fixed top-0 w-full z-50 left-0 transition-colors">
+            <div class="max-w-5xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-2 btn-press cursor-pointer" onclick="navigateTo('landing')">
+                    <h1 class="text-2xl font-extrabold tracking-tight text-zinc-800 dark:text-white">THE <span
+                            class="text-blue-500">HUSTLE</span></h1>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleTheme()"
+                        class="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300 hover:scale-110 transition-transform btn-press">
+                        <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+                        <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-yellow-400"></i>
+                    </button>
+                    <button onclick="navigateTo('landing')"
+                        class="text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1 transition-colors btn-press">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="max-w-4xl mx-auto pt-10 text-zinc-800 dark:text-zinc-100">
+            <section class="mb-20 animate-fade-in-up">
+                <div
+                    class="inline-block bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[10px] font-extrabold px-4 py-1.5 rounded-full uppercase tracking-[2px] mb-6 shadow-sm">
+                    Manifesto Kami</div>
+                <h2 class="text-4xl md:text-5xl font-extrabold tracking-tighter mb-8 leading-tight dark:text-white">
+                    Mendefinisikan Ulang Cara <br><span class="text-blue-600">Gen-Z Berkolaborasi.</span></h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <p class="text-zinc-600 dark:text-zinc-400 leading-relaxed text-justify">
+                        Hustle lahir dari keresahan akan kaku-nya platform pencarian kerja konvensional yang seringkali
+                        terjebak dalam birokrasi administratif yang panjang. Di era di mana kecepatan adalah mata uang
+                        utama, kami membangun sebuah ekosistem yang tidak hanya sekadar menghubungkan, tetapi juga
+                        memahami ritme hidup generasi digital yang dinamis.
+                    </p>
+                    <p class="text-zinc-600 dark:text-zinc-400 leading-relaxed text-justify">
+                        Kami percaya bahwa setiap bakat berhak mendapatkan panggung tanpa harus menunggu proses kurasi
+                        yang melelahkan. Hustle adalah jawaban untuk kebutuhan bisnis yang mendesak dan keinginan
+                        individu untuk terus produktif dengan cara yang lebih menyenangkan, visual, dan instan.
+                    </p>
+                </div>
+            </section>
+
+            <section class="mb-20">
+                <h3 class="text-2xl font-bold mb-10 flex items-center gap-3 dark:text-white">
+                    <span class="w-8 h-1 bg-blue-600 rounded-full"></span>
+                    Mengapa Hustle Relevan?
+                </h3>
+
+                <div class="space-y-6">
+                    <div
+                        class="bg-white dark:bg-zinc-800 p-8 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 shadow-sm flex flex-col md:flex-row gap-6 card-hover group cursor-default">
+                        <div
+                            class="bg-orange-100 dark:bg-orange-900/30 w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i data-lucide="clapperboard" class="text-orange-600 dark:text-orange-400 w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold mb-2 dark:text-white">Konsumsi Konten Visual & Cepat</h4>
+                            <p class="text-zinc-500 dark:text-zinc-400 leading-relaxed">Gen-Z memiliki kebiasaan
+                                mengonsumsi informasi melalui visual yang padat dan bermakna. Di Hustle, setiap listing
+                                pekerjaan dirancang untuk dapat dipahami hanya dalam hitungan detik melalui antarmuka
+                                yang bersih dan to-the-point.</p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-white dark:bg-zinc-800 p-8 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 shadow-sm flex flex-col md:flex-row gap-6 card-hover group cursor-default">
+                        <div
+                            class="bg-blue-100 dark:bg-blue-900/30 w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i data-lucide="timer" class="text-blue-600 dark:text-blue-400 w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold mb-2 dark:text-white">Interaksi Instan & Real-time</h4>
+                            <p class="text-zinc-500 dark:text-zinc-400 leading-relaxed">Dunia bergerak dengan cepat, dan
+                                begitu juga cara kami bekerja. Kami memotong jalur komunikasi yang berbelit-belit untuk
+                                menciptakan interaksi serba instan antara penyedia jasa dan pencari jasa secara
+                                real-time.</p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-white dark:bg-zinc-800 p-8 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 shadow-sm flex flex-col md:flex-row gap-6 card-hover group cursor-default">
+                        <div
+                            class="bg-green-100 dark:bg-green-900/30 w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i data-lucide="check-square" class="text-green-600 dark:text-green-400 w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold mb-2 dark:text-white">Keputusan Berbasis Pengalaman</h4>
+                            <p class="text-zinc-500 dark:text-zinc-400 leading-relaxed">Kami menghargai bukti nyata di
+                                atas janji tertulis. Setiap keputusan pemilihan bakat di platform ini didorong oleh
+                                pengalaman pakai sebelumnya dan portofolio konkret yang bisa divalidasi langsung oleh
+                                komunitas.</p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-white dark:bg-zinc-800 p-8 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 shadow-sm flex flex-col md:flex-row gap-6 card-hover group cursor-default">
+                        <div
+                            class="bg-purple-100 dark:bg-purple-900/30 w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i data-lucide="users-round" class="text-purple-600 dark:text-purple-400 w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold mb-2 dark:text-white">Validasi Sosial & Komunitas</h4>
+                            <p class="text-zinc-500 dark:text-zinc-400 leading-relaxed">Bagi Gen-Z, reputasi digital
+                                adalah aset berharga. Hustle memfasilitasi kebutuhan akan validasi sosial melalui sistem
+                                poin keaktifan, lencana reputasi, dan feedback komunitas yang membangun.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section
+                class="mb-20 bg-zinc-900 rounded-[3rem] p-10 md:p-16 text-white overflow-hidden relative group hover:shadow-2xl transition-shadow">
+                <div
+                    class="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 blur-[100px] rounded-full group-hover:bg-blue-600/30 transition-all duration-700">
+                </div>
+
+                <div class="relative z-10">
+                    <h3 class="text-3xl font-bold mb-6">Misi Kami</h3>
+                    <p class="text-zinc-400 text-lg mb-10 leading-relaxed italic">
+                        "Membangun jembatan digital yang tidak hanya efisien secara ekonomi, tetapi juga relevan secara
+                        budaya bagi generasi baru pekerja mandiri."
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
+                        <div class="hover:-translate-y-1 transition-transform">
+                            <h5 class="font-bold text-blue-400 mb-2">Inovasi Berkelanjutan</h5>
+                            <p class="opacity-70">Terus mengadaptasi teknologi terbaru seperti AI untuk mempermudah
+                                pencocokan pekerjaan.</p>
+                        </div>
+                        <div class="hover:-translate-y-1 transition-transform">
+                            <h5 class="font-bold text-blue-400 mb-2">Ekosistem Sehat</h5>
+                            <p class="opacity-70">Menjaga standar keamanan dan keadilan bagi semua pihak yang terlibat
+                                dalam transaksi.</p>
+                        </div>
+                        <div class="hover:-translate-y-1 transition-transform">
+                            <h5 class="font-bold text-blue-400 mb-2">Pemberdayaan Lokal</h5>
+                            <p class="opacity-70">Mendorong pertumbuhan ekonomi mikro bagi komunitas kampus dan
+                                profesional muda di Indonesia.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="text-center pb-10">
+                <p class="text-zinc-400 text-sm mb-4">Intinya, bukan sekadar aplikasi, tapi platform yang hidup di
+                    keseharian Gen-Z.</p>
+                <div class="text-[10px] font-bold text-zinc-300 dark:text-zinc-600 tracking-[5px] uppercase">SPINOTEK
+                    VIBECODING HACKATHON VOL. 02</div>
+            </div>
+        </main>
+    </section>
+
+    <section id="view-login" class="view-section min-h-screen items-center justify-center p-6 relative overflow-hidden">
+        <div
+            class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-600/20 blur-[120px] rounded-full pointer-events-none">
+        </div>
+        <button onclick="navigateTo('landing')"
+            class="absolute top-6 left-6 text-zinc-500 hover:text-white flex items-center gap-2 text-sm font-bold z-20 btn-press">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali ke Beranda
+        </button>
+
+        <button onclick="toggleTheme()"
+            class="absolute top-6 right-6 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all btn-press z-20">
+            <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+            <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-yellow-400"></i>
+        </button>
+
+        <div class="w-full max-w-md relative z-10 animate-fade-in-up">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-extrabold tracking-tight text-white">THE <span
+                        class="text-blue-500">HUSTLE</span></h1>
+                <p class="text-zinc-500 text-sm mt-2">Pintu gerbang cuan masa depanmu</p>
+            </div>
+
+            <div
+                class="glass rounded-[2rem] p-8 shadow-2xl hover:shadow-[0_0_40px_rgba(79,70,229,0.15)] transition-shadow duration-500">
+                <div class="flex bg-zinc-900/50 p-1 rounded-2xl mb-8">
+                    <button onclick="switchLoginTab('login')" id="tab-login"
+                        class="flex-1 py-3 rounded-xl text-sm font-bold transition-all bg-indigo-600 text-white btn-press">Masuk</button>
+                    <button onclick="switchLoginTab('register')" id="tab-register"
+                        class="flex-1 py-3 rounded-xl text-sm font-bold transition-all text-zinc-500 hover:text-white btn-press">Daftar</button>
+                </div>
+
+                <form id="form-login" class="space-y-5" onsubmit="handleAuthSubmit(event)">
+                    <div>
+                        <label
+                            class="block text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">Username</label>
+                        <div class="relative group">
+                            <i data-lucide="user"
+                                class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 group-focus-within:text-indigo-500 transition-colors"></i>
+                            <input type="text" id="input-username-login" placeholder="username_kamu"
+                                class="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl py-4 pl-12 pr-4 input-focus text-sm text-white"
+                                required>
+                        </div>
+                    </div>
+                    <div>
+                        <label
+                            class="block text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">Password</label>
+                        <div class="relative group">
+                            <i data-lucide="lock"
+                                class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 group-focus-within:text-indigo-500 transition-colors"></i>
+                            <input type="password" placeholder="••••••••"
+                                class="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl py-4 pl-12 pr-4 input-focus text-sm text-white"
+                                required>
+                        </div>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded-2xl font-bold transition-all shadow-lg mt-4 text-white hover:-translate-y-1 hover:shadow-indigo-500/50 btn-press">Masuk
+                        Sekarang</button>
+                </form>
+
+                <form id="form-register" class="hidden space-y-4" onsubmit="handleAuthSubmit(event)">
+                    <div>
+                        <label class="block text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">Email atau
+                            No. WhatsApp</label>
+                        <input type="text" placeholder="nama@email.com"
+                            class="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl py-4 px-4 text-sm text-white focus:border-indigo-600 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">Buat
+                            Username</label>
+                        <input type="text" id="input-username-reg" placeholder="hustler_muda"
+                            class="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl py-4 px-4 text-sm text-white focus:border-indigo-600 outline-none transition-all">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">Password</label>
+                            <input type="password" placeholder="••••"
+                                class="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl py-3 px-4 input-focus text-sm text-white">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">Konfirmasi</label>
+                            <input type="password" placeholder="••••"
+                                class="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl py-3 px-4 input-focus text-sm text-white">
+                        </div>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-white text-black hover:bg-indigo-500 hover:text-white py-4 rounded-2xl font-bold transition-all mt-2 hover:-translate-y-1 btn-press">Buat
+                        Akun</button>
+                </form>
+            </div>
+            <p class="text-center mt-8 text-zinc-600 text-[10px] uppercase tracking-[4px]">Verified Secure by Hustle</p>
+        </div>
+    </section>
+
+    <section id="view-home" class="view-section max-w-6xl mx-auto px-6 pt-28">
+        <section
+            class="blue-gradient rounded-[2.5rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl shadow-blue-500/20 mb-10 group">
+            <div
+                class="absolute -right-10 -top-10 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700 pointer-events-none">
+            </div>
+            <div
+                class="absolute -left-10 -bottom-10 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl group-hover:bg-purple-500/30 transition-all duration-700 pointer-events-none">
+            </div>
+            <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
+                <div class="text-center md:text-left">
+                    <h2 id="home-welcome-msg"
+                        class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 drop-shadow-sm">Halo! 👋</h2>
+                    <p class="text-blue-100 font-medium mb-8 max-w-lg text-lg">Siap untuk beraksi hari ini? Jangan lupa
+                        cek tugas terbaru dan pertahankan lencana keaktifanmu.</p>
+                    <button onclick="navigateTo('upload')"
+                        class="bg-white text-blue-600 px-8 py-4 rounded-2xl font-bold flex items-center gap-2 shadow-xl shadow-blue-900/20 hover:bg-zinc-50 hover:scale-105 hover:shadow-2xl transition-all btn-press mx-auto md:mx-0">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i> Upload Tugas
+                    </button>
+                </div>
+                <div
+                    class="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[2.5rem] text-center min-w-[200px] hover:bg-white/20 transition-all duration-300 card-hover">
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-blue-100 mb-2">Poin Keaktifan</p>
+                    <p
+                        class="text-6xl font-black italic tracking-tighter drop-shadow-md hover:scale-110 transition-transform">
+                        1.250</p>
+                    <div class="w-full bg-white/20 h-1.5 rounded-full mt-4 overflow-hidden">
+                        <div class="bg-yellow-400 h-full w-[80%] shadow-[0_0_10px_rgba(250,204,21,0.8)]"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h3 class="text-2xl font-extrabold tracking-tight mb-8 flex items-center gap-3 dark:text-white">
+                <span class="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-xl text-blue-600"><i
+                        data-lucide="graduation-cap"></i></span>
+                Skill Training Hub
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-zinc-800">
+                <div
+                    class="bg-white p-8 rounded-[2.5rem] border border-zinc-100 shadow-sm hover:border-blue-200 transition-all duration-300 card-hover cursor-pointer group dark:bg-zinc-800 dark:border-zinc-700">
+                    <div
+                        class="bg-blue-50 w-14 h-14 rounded-2xl flex items-center justify-center text-blue-600 mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 shadow-sm dark:bg-blue-900/30 dark:text-blue-400">
+                        <i data-lucide="code" class="w-7 h-7"></i>
+                    </div>
+                    <h4 class="font-bold text-xl mb-3 group-hover:text-blue-600 transition-colors dark:text-white">Web
+                        Development</h4>
+                    <p class="text-zinc-500 text-sm leading-relaxed dark:text-zinc-400">Pelajari cara membangun platform
+                        digital instan seperti THE HUSTLE dari nol.</p>
+                </div>
+                <div
+                    class="bg-white p-8 rounded-[2.5rem] border border-zinc-100 shadow-sm hover:border-orange-200 transition-all duration-300 card-hover cursor-pointer group dark:bg-zinc-800 dark:border-zinc-700">
+                    <div
+                        class="bg-orange-50 w-14 h-14 rounded-2xl flex items-center justify-center text-orange-600 mb-6 group-hover:bg-orange-600 group-hover:text-white transition-colors duration-300 shadow-sm dark:bg-orange-900/30 dark:text-orange-400">
+                        <i data-lucide="layout" class="w-7 h-7"></i>
+                    </div>
+                    <h4 class="font-bold text-xl mb-3 group-hover:text-orange-600 transition-colors dark:text-white">
+                        UI/UX Design</h4>
+                    <p class="text-zinc-500 text-sm leading-relaxed dark:text-zinc-400">Tingkatkan estetika visual
+                        aplikasi agar relevan dengan selera Gen-Z.</p>
+                </div>
+                <div
+                    class="bg-white p-8 rounded-[2.5rem] border border-zinc-100 shadow-sm hover:border-purple-200 transition-all duration-300 card-hover cursor-pointer group dark:bg-zinc-800 dark:border-zinc-700">
+                    <div
+                        class="bg-purple-50 w-14 h-14 rounded-2xl flex items-center justify-center text-purple-600 mb-6 group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300 shadow-sm dark:bg-purple-900/30 dark:text-purple-400">
+                        <i data-lucide="trending-up" class="w-7 h-7"></i>
+                    </div>
+                    <h4 class="font-bold text-xl mb-3 group-hover:text-purple-600 transition-colors dark:text-white">
+                        Social Media Ops</h4>
+                    <p class="text-zinc-500 text-sm leading-relaxed dark:text-zinc-400">Strategi validasi sosial dan
+                        manajemen komunitas yang efektif.</p>
+                </div>
+            </div>
+        </section>
+    </section>
+
+    <section id="view-explore" class="view-section max-w-6xl mx-auto px-6 pt-28">
+        <header class="mb-8 flex items-center justify-between">
+            <h2 class="text-3xl font-extrabold tracking-tight dark:text-white">Eksplor <span
+                    class="text-blue-600">Tugas</span></h2>
+            <div class="hidden md:flex items-center gap-2 text-sm font-semibold text-zinc-400">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Live Updates
+            </div>
+        </header>
+
+        <section class="mb-8">
+            <div class="relative group">
+                <i data-lucide="search"
+                    class="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 group-focus-within:text-blue-500 transition-colors"></i>
+                <input type="text" id="search-task-input" onkeyup="filterTasks()" placeholder="Cari judul pekerjaan..."
+                    class="w-full bg-white border border-zinc-200 rounded-[2rem] py-5 pl-16 pr-6 shadow-sm input-glow font-medium transition-all text-lg dark:bg-zinc-800 dark:border-zinc-700">
+            </div>
+        </section>
+
+        <section
+            class="mb-10 overflow-x-auto whitespace-nowrap custom-scrollbar pb-4 flex gap-3 -mx-6 px-6 md:mx-0 md:px-0">
+            <div onclick="setCategory('ALL', this)"
+                class="category-pill active bg-white dark:bg-zinc-800 px-6 py-3 rounded-full text-xs font-bold shadow-sm select-none">
+                SEMUA</div>
+            <div onclick="setCategory('WEB DEV', this)"
+                class="category-pill bg-white dark:bg-zinc-800 px-6 py-3 rounded-full text-xs font-bold shadow-sm select-none">
+                WEB DEV</div>
+            <div onclick="setCategory('DESAIN', this)"
+                class="category-pill bg-white dark:bg-zinc-800 px-6 py-3 rounded-full text-xs font-bold shadow-sm select-none">
+                DESAIN</div>
+            <div onclick="setCategory('VIDEO', this)"
+                class="category-pill bg-white dark:bg-zinc-800 px-6 py-3 rounded-full text-xs font-bold shadow-sm select-none">
+                VIDEO</div>
+            <div onclick="setCategory('MENULIS', this)"
+                class="category-pill bg-white dark:bg-zinc-800 px-6 py-3 rounded-full text-xs font-bold shadow-sm select-none">
+                MENULIS</div>
+            <div onclick="setCategory('UI/UX', this)"
+                class="category-pill bg-white dark:bg-zinc-800 px-6 py-3 rounded-full text-xs font-bold shadow-sm select-none">
+                UI/UX</div>
+            <div onclick="setCategory('DATA', this)"
+                class="category-pill bg-white dark:bg-zinc-800 px-6 py-3 rounded-full text-xs font-bold shadow-sm select-none">
+                DATA</div>
+        </section>
+
+        <div id="taskGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8"></div>
+    </section>
+
+    <section id="view-upload" class="view-section max-w-6xl mx-auto px-6 pt-32">
+        <div class="mb-10 text-center">
+            <h2 class="text-3xl font-extrabold tracking-tight mb-2 dark:text-white">Manajemen Tugas 🛠️</h2>
+            <p class="text-zinc-500 font-medium">Pantau progres kerja dan kelola postingan tugas Anda.</p>
+        </div>
+
+        <div
+            class="flex bg-zinc-200/50 p-1.5 rounded-[1.5rem] mb-10 max-w-2xl mx-auto overflow-x-auto dark:bg-zinc-800 shadow-inner">
+            <button onclick="switchUploadTab('new')" id="tab-new"
+                class="tab-btn active flex-1 py-3 px-6 rounded-2xl text-xs font-bold transition-all whitespace-nowrap bg-white text-blue-600 shadow-sm dark:bg-zinc-700 btn-press">Upload
+                Baru</button>
+            <button onclick="switchUploadTab('my-uploads')" id="tab-my-uploads"
+                class="tab-btn flex-1 py-3 px-6 rounded-2xl text-xs font-bold transition-all text-zinc-500 hover:text-zinc-700 whitespace-nowrap btn-press">Postingan
+                Saya</button>
+            <button onclick="switchUploadTab('on-progress')" id="tab-on-progress"
+                class="tab-btn flex-1 py-3 px-6 rounded-2xl text-xs font-bold transition-all text-zinc-500 hover:text-zinc-700 whitespace-nowrap btn-press">Sedang
+                Dikerjakan</button>
+        </div>
+
+        <div id="section-new" class="upload-section animate-fade-in-up">
+            <div
+                class="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl shadow-blue-500/5 border border-zinc-100 max-w-2xl mx-auto dark:bg-zinc-800 dark:border-zinc-700 dark:shadow-none">
+                <form class="space-y-6" onsubmit="handleUploadSubmit(event)">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-2">Judul
+                            Pekerjaan</label>
+                        <input type="text" id="up-title" required placeholder="Contoh: Edit Video TikTok Estetik"
+                            class="w-full p-4 rounded-2xl bg-zinc-50 border border-transparent input-glow text-sm font-semibold transition-all dark:bg-zinc-700 dark:text-white">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-2">Deskripsi
+                            Singkat</label>
+                        <textarea id="up-desc" rows="3" required placeholder="Jelaskan apa yang perlu dikerjakan..."
+                            class="w-full p-4 rounded-2xl bg-zinc-50 border border-transparent input-glow text-sm font-semibold resize-none transition-all dark:bg-zinc-700 dark:text-white"></textarea>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label
+                                class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-2">Email</label>
+                            <input type="email" id="up-email" required placeholder="nama@email.com"
+                                class="w-full p-4 rounded-2xl bg-zinc-50 border border-transparent input-glow text-sm font-semibold transition-all dark:bg-zinc-700 dark:text-white">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-2">Nomor
+                                WhatsApp</label>
+                            <input type="tel" id="up-whatsapp" required placeholder="0812xxxxxxxx"
+                                class="w-full p-4 rounded-2xl bg-zinc-50 border border-transparent input-glow text-sm font-semibold transition-all dark:bg-zinc-700 dark:text-white">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label
+                                class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-2">Kategori</label>
+                            <div class="relative">
+                                <select id="up-category"
+                                    class="w-full p-4 rounded-2xl bg-zinc-50 border border-transparent input-glow text-sm font-semibold appearance-none transition-all dark:bg-zinc-700 dark:text-white cursor-pointer">
+                                    <option value="WEB DEV">Web Development</option>
+                                    <option value="DESAIN">Graphic Design</option>
+                                    <option value="VIDEO">Video Editor</option>
+                                    <option value="MENULIS">Writing</option>
+                                    <option value="UI/UX">UI/UX Design</option>
+                                    <option value="DATA">Data Analysis</option>
+                                </select>
+                                <i data-lucide="chevron-down"
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label
+                                class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-2">Deadline</label>
+                            <input type="date" id="up-deadline" required
+                                class="w-full p-4 rounded-2xl bg-zinc-50 border border-transparent input-glow text-sm font-semibold transition-all dark:bg-zinc-700 dark:text-white">
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-2">Budget
+                            Estimasi (Rp)</label>
+                        <div class="relative">
+                            <span
+                                class="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-zinc-400 text-sm">Rp</span>
+                            <input type="number" id="up-budget" required placeholder="0"
+                                class="w-full py-4 pl-12 pr-6 rounded-2xl bg-zinc-50 border border-transparent input-glow text-sm font-semibold transition-all dark:bg-zinc-700 dark:text-white">
+                        </div>
+                    </div>
+                    <div class="pt-4">
+                        <button type="submit"
+                            class="w-full blue-gradient text-white py-5 rounded-2xl font-bold shadow-lg shadow-blue-200 transition-all hover:scale-[1.02] hover:shadow-xl btn-press flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-5 h-5"></i> Post Project Sekarang
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="section-my-uploads" class="upload-section hidden animate-fade-in-up">
+            <div id="myUploadsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+
+        <div id="section-on-progress" class="upload-section hidden animate-fade-in-up">
+            <div id="takenTasksGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+    </section>
+
+    <section id="view-chat" class="view-section pt-24 h-screen overflow-hidden">
+        <div
+            class="max-w-6xl mx-auto flex h-[75vh] border border-zinc-200 rounded-[2.5rem] overflow-hidden shadow-lg bg-white m-4 dark:border-zinc-700 animate-fade-in-up">
+            <div
+                class="w-1/3 border-r border-zinc-100 flex flex-col bg-zinc-50/50 dark:border-zinc-700 dark:bg-zinc-800">
+                <div class="p-6">
+                    <h2 class="text-2xl font-extrabold text-blue-600 mb-6">Pesan</h2>
+                    <div class="relative group">
+                        <i data-lucide="search"
+                            class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-blue-500 transition-colors"></i>
+                        <input type="text" id="search-chat-input" onkeyup="filterChats()" placeholder="Cari kontak..."
+                            class="w-full bg-white border border-zinc-200 rounded-2xl py-3 pl-11 pr-4 text-sm input-glow transition-all dark:bg-zinc-700 dark:border-zinc-600 dark:text-white">
+                    </div>
+                </div>
+                <div id="contactList" class="flex-1 overflow-y-auto custom-scrollbar px-2"></div>
+            </div>
+            <div class="flex-1 flex flex-col bg-white dark:bg-zinc-900">
+                <div class="p-4 border-b border-zinc-100 dark:border-zinc-700 flex items-center gap-4 shadow-sm z-10">
+                    <div id="activeAvatar"
+                        class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-md transition-transform hover:scale-110 cursor-pointer">
+                        AR</div>
+                    <div class="flex flex-col">
+                        <h4 id="activeName" class="font-bold text-base dark:text-white">Pilih kontak...</h4>
+                        <span
+                            class="text-[10px] text-green-500 font-bold flex items-center gap-1.5 bg-green-50 dark:bg-green-900/30 px-2 py-0.5 rounded-full w-fit">
+                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse-slow"></span> Online
+                        </span>
+                    </div>
+                </div>
+                <div id="chatBox"
+                    class="flex-1 p-6 overflow-y-auto space-y-4 bg-[#f8fafc] custom-scrollbar flex flex-col dark:bg-zinc-950">
+                </div>
+                <form id="chatForm"
+                    class="p-4 bg-white border-t border-zinc-100 dark:bg-zinc-900 dark:border-zinc-700 flex items-center gap-3">
+                    <input type="text" id="msgInput" placeholder="Ketik pesan..."
+                        class="flex-1 bg-zinc-50 border border-zinc-200 rounded-2xl py-4 px-6 text-sm input-glow transition-all dark:bg-zinc-800 dark:border-zinc-700 dark:text-white">
+                    <button type="submit"
+                        class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-200 hover:bg-blue-700 hover:scale-105 transition-all btn-press">
+                        <i data-lucide="send" class="w-5 h-5 ml-0.5"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section id="view-profile" class="view-section max-w-6xl mx-auto px-6 pt-28">
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-2 cursor-pointer text-zinc-500 hover:text-blue-600 transition-colors btn-press"
+                onclick="navigateTo('home')">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i> <span class="font-bold">Kembali</span>
+            </div>
+
+            <button onclick="toggleTheme()"
+                class="bg-white border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700 text-zinc-800 dark:text-white px-5 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 hover:bg-zinc-50 hover:shadow-md transition-all btn-press">
+                <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+                <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-yellow-400"></i> Mode Tampilan
+            </button>
+        </div>
+
+        <section
+            class="blue-gradient rounded-[3rem] p-12 text-white text-center relative shadow-2xl shadow-blue-500/20 mb-12 overflow-hidden group hover:shadow-blue-500/40 transition-shadow">
+            <div
+                class="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+            </div>
+            <div id="prof-initial"
+                class="w-32 h-32 bg-white/20 backdrop-blur-sm rounded-full mx-auto mb-6 border-4 border-white/50 flex items-center justify-center text-5xl font-bold shadow-xl group-hover:scale-110 transition-transform duration-500">
+                MB</div>
+            <h2 id="prof-name" class="text-3xl font-extrabold mb-2 tracking-tight">Muhammad Basit</h2>
+            <p class="text-blue-100 opacity-90 mb-8 font-medium">Teknik Informatika • NIM: 6733</p>
+            <span
+                class="bg-white/20 backdrop-blur-md px-8 py-2.5 rounded-full text-xs font-bold border border-white/30 shadow-sm uppercase tracking-widest hover:bg-white/30 transition-colors cursor-default">Anggota
+                Aktif</span>
+        </section>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div
+                class="bg-white p-8 rounded-[2.5rem] text-center border border-zinc-100 shadow-sm card-hover group dark:bg-zinc-800 dark:border-zinc-700">
+                <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-3">Total Poin</p>
+                <p class="text-5xl font-black text-blue-600 group-hover:scale-110 transition-transform duration-300">
+                    1.250</p>
+            </div>
+            <div
+                class="bg-white p-8 rounded-[2.5rem] text-center border border-zinc-100 shadow-sm card-hover group dark:bg-zinc-800 dark:border-zinc-700">
+                <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-3">Kehadiran</p>
+                <p
+                    class="text-5xl font-black text-zinc-800 dark:text-white group-hover:scale-110 transition-transform duration-300">
+                    12x</p>
+            </div>
+            <div
+                class="bg-white p-8 rounded-[2.5rem] text-center border border-zinc-100 shadow-sm card-hover group dark:bg-zinc-800 dark:border-zinc-700">
+                <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-3">Level</p>
+                <p class="text-5xl font-black text-orange-500 group-hover:scale-110 transition-transform duration-300">
+                    Newbie</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 mb-12">
+            <div
+                class="bg-white p-10 rounded-[3rem] border border-zinc-100 shadow-lg flex flex-col md:flex-row items-center justify-between gap-8 dark:bg-zinc-800 dark:border-zinc-700 card-hover">
+                <div class="text-center md:text-left">
+                    <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">Total Uang Terkumpul</p>
+                    <p class="text-5xl font-black text-green-600 tracking-tight">Rp 750.000</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                    <button onclick="openTopUpModal()"
+                        class="bg-zinc-900 text-white px-8 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-zinc-700 transition-all shadow-lg hover:-translate-y-1 btn-press dark:bg-zinc-600 w-full sm:w-auto">
+                        <i data-lucide="plus" class="w-5 h-5"></i> Top Up
+                    </button>
+                    <button onclick="document.getElementById('withdrawModal').classList.remove('hidden')"
+                        class="bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 hover:-translate-y-1 btn-press w-full sm:w-auto">
+                        <i data-lucide="landmark" class="w-5 h-5"></i> Tarik Tunai
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="logoutAction()"
+            class="w-full bg-white p-6 rounded-[2.5rem] border border-red-100 text-red-500 font-bold flex items-center justify-center gap-3 hover:bg-red-50 hover:border-red-200 transition-all shadow-sm btn-press mb-10 dark:bg-zinc-800 dark:border-zinc-700 dark:hover:bg-red-900/20">
+            <i data-lucide="log-out" class="w-5 h-5"></i> Keluar Akun
+        </button>
+    </section>
+
+    <div id="system-bottom-nav"
+        class="hidden fixed bottom-8 left-1/2 -translate-x-1/2 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl border border-white/20 dark:border-zinc-800 text-zinc-500 px-8 py-3 rounded-full flex items-center gap-8 shadow-2xl shadow-blue-900/10 z-50 transition-all hover:scale-105 duration-300">
+        <button onclick="navigateTo('home')" id="btn-home"
+            class="nav-active p-3 transition-all duration-300 hover:scale-110 btn-press"><i data-lucide="home"
+                class="w-6 h-6"></i></button>
+        <button onclick="navigateTo('explore')" id="btn-explore"
+            class="hover:text-blue-600 p-3 transition-all duration-300 hover:scale-110 btn-press"><i data-lucide="users"
+                class="w-6 h-6"></i></button>
+        <button onclick="navigateTo('chat')" id="btn-chat"
+            class="hover:text-blue-600 p-3 transition-all duration-300 hover:scale-110 btn-press"><i data-lucide="zap"
+                class="w-6 h-6"></i></button>
+        <button onclick="navigateTo('profile')" id="btn-profile"
+            class="hover:text-blue-600 p-3 transition-all duration-300 hover:scale-110 btn-press"><i data-lucide="user"
+                class="w-6 h-6"></i></button>
+    </div>
+
+    <div id="taskModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 modal-blur animate-fade-in-up" onclick="closeTaskModal()"></div>
+        <div
+            class="bg-white w-full max-w-lg rounded-[2.5rem] relative z-10 overflow-hidden shadow-2xl animate-bounce-slight dark:bg-zinc-800">
+            <div class="blue-gradient p-10 text-white relative">
+                <button onclick="closeTaskModal()"
+                    class="absolute top-6 right-6 bg-white/20 p-2 rounded-full hover:bg-white/40 hover:scale-110 transition-all btn-press"><i
+                        data-lucide="x" class="w-5 h-5"></i></button>
+                <span id="modalCategory"
+                    class="text-[10px] font-black uppercase tracking-widest bg-white/20 px-4 py-1.5 rounded-full border border-white/30">Kategori</span>
+                <h3 id="modalTitle" class="text-3xl font-extrabold mt-4 leading-tight">Judul</h3>
+            </div>
+            <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
+                <div class="flex items-center gap-5">
+                    <div id="modalUserInitial"
+                        class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xl shadow-sm border border-blue-200">
+                        AR</div>
+                    <div>
+                        <p class="text-[10px] font-bold text-zinc-400 uppercase leading-none mb-1">Diposting Oleh</p>
+                        <p id="modalUserName" class="text-lg font-bold text-zinc-800 dark:text-white">User</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-zinc-400 uppercase mb-2 tracking-widest">Deskripsi Pekerjaan
+                    </p>
+                    <div
+                        class="bg-zinc-50 p-4 rounded-2xl border border-zinc-100 dark:bg-zinc-700 dark:border-zinc-600">
+                        <p id="modalDesc" class="text-sm text-zinc-600 leading-relaxed dark:text-zinc-300">Deskripsi...
+                        </p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div
+                        class="p-4 bg-blue-50/50 rounded-2xl border border-blue-100 dark:bg-zinc-700 dark:border-zinc-600">
+                        <p class="text-[10px] font-bold text-blue-600 uppercase mb-1">Budget</p>
+                        <p id="modalPayment" class="text-base font-black text-zinc-800 dark:text-white">Rp 0</p>
+                    </div>
+                    <div
+                        class="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 dark:bg-zinc-700 dark:border-zinc-600">
+                        <p class="text-[10px] font-bold text-orange-600 uppercase mb-1">Deadline</p>
+                        <p id="modalDeadline" class="text-base font-black text-zinc-800 dark:text-white">Tanggal</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-zinc-400 uppercase mb-2 tracking-widest">Informasi Kontak</p>
+                    <div class="space-y-3">
+                        <a href="#" id="waLink" target="_blank"
+                            class="flex items-center gap-3 p-3 rounded-2xl border border-green-100 bg-green-50/50 hover:bg-green-100 hover:-translate-y-1 transition-all group dark:bg-zinc-700 dark:border-zinc-600 dark:hover:bg-zinc-600">
+                            <div class="bg-green-500 p-2 rounded-lg text-white shadow-md shadow-green-200"><i
+                                    data-lucide="message-circle" class="w-4 h-4"></i></div>
+                            <div>
+                                <p class="text-[10px] font-bold text-green-600 uppercase mb-0.5">WhatsApp</p>
+                                <span id="modalWA"
+                                    class="text-sm font-bold text-zinc-700 dark:text-white group-hover:text-green-700">0812-xxxx-xxxx</span>
+                            </div>
+                        </a>
+                        <div
+                            class="flex items-center gap-3 p-3 rounded-2xl border border-zinc-100 hover:bg-zinc-50 transition-colors dark:border-zinc-700 dark:hover:bg-zinc-700">
+                            <div class="bg-indigo-100 p-2 rounded-lg text-indigo-600"><i data-lucide="mail"
+                                    class="w-4 h-4"></i></div>
+                            <div>
+                                <p class="text-[10px] font-bold text-zinc-400 uppercase mb-0.5">Email</p>
+                                <span id="modalEmail"
+                                    class="text-sm font-bold text-zinc-700 dark:text-white">email@contoh.com</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button id="hubungiBtn"
+                    class="w-full blue-gradient text-white py-5 rounded-2xl font-bold text-lg shadow-xl shadow-blue-200 hover:scale-[1.02] transition-transform btn-press mt-2">Ambil
+                    Tugas & Chat</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="withdrawModal" class="hidden fixed inset-0 z-[150] flex items-center justify-center p-4">
+        <div class="absolute inset-0 modal-blur" onclick="closeWithdrawModal()"></div>
+        <div
+            class="bg-white w-full max-w-md rounded-[2.5rem] relative z-10 p-8 shadow-2xl animate-bounce-slight dark:bg-zinc-800">
+            <div class="blue-gradient p-6 rounded-t-[2.5rem] -mx-8 -mt-8 mb-8 text-white relative">
+                <button onclick="closeWithdrawModal()"
+                    class="absolute top-6 right-6 bg-white/20 p-2 rounded-full hover:bg-white/40 hover:scale-110 transition-all btn-press"><i
+                        data-lucide="x" class="w-5 h-5"></i></button>
+                <h3 class="text-2xl font-extrabold">Tarik Saldo</h3>
+                <p class="text-blue-100 text-sm opacity-90">Cairkan penghasilanmu ke rekening.</p>
+            </div>
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="text-xs font-bold text-zinc-400 uppercase ml-2">Bank / E-Wallet Tujuan</label>
+                    <div class="relative">
+                        <select id="bank-select"
+                            class="w-full p-4 pl-12 mt-1 rounded-2xl bg-zinc-50 border border-zinc-100 font-semibold text-sm outline-none focus:border-blue-600 text-zinc-800 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white cursor-pointer appearance-none">
+                            <option>BCA</option>
+                            <option>BRI</option>
+                            <option>Mandiri</option>
+                            <option>BNI</option>
+                            <option>SeaBank</option>
+                            <option>GoPay</option>
+                            <option>OVO</option>
+                            <option>Dana</option>
+                            <option>ShopeePay</option>
+                        </select>
+                        <i data-lucide="credit-card"
+                            class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400"></i>
+                        <i data-lucide="chevron-down"
+                            class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none"></i>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-zinc-400 uppercase ml-2">Nomor Rekening / HP</label>
+                    <div class="relative">
+                        <input type="number" id="account-number" placeholder="Contoh: 1234567890"
+                            class="w-full p-4 pl-12 mt-1 rounded-2xl bg-zinc-50 border border-zinc-100 font-semibold text-sm outline-none focus:border-blue-600 text-zinc-800 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white">
+                        <i data-lucide="hash"
+                            class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400"></i>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-zinc-400 uppercase ml-2">Nominal Penarikan</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-zinc-400 text-sm">Rp</span>
+                        <input type="number" id="withdraw-amount" placeholder="0"
+                            class="w-full p-4 pl-12 mt-1 rounded-2xl bg-zinc-50 border border-zinc-100 font-semibold text-sm outline-none focus:border-blue-600 text-zinc-800 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white">
+                    </div>
+                </div>
+                <button onclick="confirmWithdraw()"
+                    class="w-full blue-gradient text-white py-4 rounded-2xl font-bold mt-4 shadow-lg hover:-translate-y-1 transition-all btn-press">Konfirmasi
+                    Transfer</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="topUpModal" class="hidden fixed inset-0 z-[150] flex items-center justify-center p-4">
+        <div class="absolute inset-0 modal-blur" onclick="closeTopUpModal()"></div>
+        <div
+            class="bg-white w-full max-w-md rounded-[2.5rem] relative z-10 p-8 shadow-2xl animate-bounce-slight dark:bg-zinc-800">
+            <div class="bg-zinc-900 p-6 rounded-t-[2.5rem] -mx-8 -mt-8 mb-8 text-white relative">
+                <button onclick="closeTopUpModal()"
+                    class="absolute top-6 right-6 bg-white/20 p-2 rounded-full hover:bg-white/40 hover:scale-110 transition-all btn-press"><i
+                        data-lucide="x" class="w-5 h-5"></i></button>
+                <h3 class="text-2xl font-extrabold">Top Up Saldo</h3>
+                <p class="text-zinc-400 text-sm">Isi saldo untuk transaksi lebih mudah.</p>
+            </div>
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="text-xs font-bold text-zinc-400 uppercase ml-2">Metode Pembayaran</label>
+                    <div class="relative">
+                        <select id="topup-method"
+                            class="w-full p-4 pl-12 mt-1 rounded-2xl bg-zinc-50 border border-zinc-100 font-semibold text-sm outline-none focus:border-blue-600 text-zinc-800 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white cursor-pointer appearance-none">
+                            <option>QRIS (Instant)</option>
+                            <option>Virtual Account BCA</option>
+                            <option>Virtual Account BRI</option>
+                            <option>Virtual Account Mandiri</option>
+                            <option>GoPay</option>
+                            <option>Dana</option>
+                        </select>
+                        <i data-lucide="wallet"
+                            class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400"></i>
+                        <i data-lucide="chevron-down"
+                            class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none"></i>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-zinc-400 uppercase ml-2">Nominal Top Up</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-zinc-400 text-sm">Rp</span>
+                        <input type="number" id="topup-amount" placeholder="Min. Rp 10.000"
+                            class="w-full p-4 pl-12 mt-1 rounded-2xl bg-zinc-50 border border-zinc-100 font-semibold text-sm outline-none focus:border-blue-600 text-zinc-800 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white">
+                    </div>
+                </div>
+                <button onclick="confirmTopUp()"
+                    class="w-full bg-zinc-900 text-white py-4 rounded-2xl font-bold mt-4 shadow-lg hover:-translate-y-1 transition-all btn-press dark:bg-zinc-600">Bayar
+                    Sekarang</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const systemViews = ['home', 'explore', 'upload', 'chat', 'profile'];
+
+        // --- THEME (DARK/LIGHT) ---
+        function initTheme() {
+            const isDark = localStorage.getItem('hustle_dark_mode') === 'true';
+            if (isDark) document.documentElement.classList.add('dark');
+        }
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('hustle_dark_mode', isDark);
+        }
+
+        // --- ROUTING (SPA NAVIGATION) ---
+        function navigateTo(viewId) {
+            // Sembunyikan semua view
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+
+            // Tampilkan target
+            const target = document.getElementById('view-' + viewId);
+            if (target) target.classList.add('active');
+
+            // Kontrol visibilitas Navbar Sistem (Top & Bottom)
+            if (systemViews.includes(viewId)) {
+                document.getElementById('system-top-nav').classList.remove('hidden');
+                document.getElementById('system-bottom-nav').classList.remove('hidden');
+            } else {
+                document.getElementById('system-top-nav').classList.add('hidden');
+                document.getElementById('system-bottom-nav').classList.add('hidden');
+            }
+
+            // Update Bottom Nav Active State
+            if (systemViews.includes(viewId)) {
+                document.querySelectorAll('#system-bottom-nav button').forEach(btn => {
+                    btn.className = 'hover:text-blue-600 p-3 transition-all duration-300 text-zinc-400 hover:scale-110 btn-press';
+                });
+                const btnMap = { 'home': 'btn-home', 'explore': 'btn-explore', 'chat': 'btn-chat', 'profile': 'btn-profile' };
+                if (btnMap[viewId]) {
+                    const activeBtn = document.getElementById(btnMap[viewId]);
+                    activeBtn.className = 'nav-active p-3 transition-all duration-300 hover:scale-110 btn-press';
+                }
+            }
+
+            // Trigger Specific Renderings
+            if (viewId === 'explore') filterTasks();
+            if (viewId === 'chat') renderContacts();
+            if (viewId === 'upload') switchUploadTab('new');
+
+            window.scrollTo(0, 0);
+            lucide.createIcons();
+        }
+
+        // --- AUTHENTICATION ---
+        function checkAuthInit() {
+            const user = localStorage.getItem('hustle_user_name');
+            if (user) { updateProfileUI(user); }
+        }
+
+        function actionButtonAuth() {
+            const user = localStorage.getItem('hustle_user_name');
+            if (user) {
+                updateProfileUI(user);
+                navigateTo('home');
+            } else {
+                navigateTo('login');
+            }
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const loginUser = document.getElementById('input-username-login').value;
+            const regUser = document.getElementById('input-username-reg').value;
+            const finalUser = loginUser || regUser || "User";
+
+            localStorage.setItem('hustle_user_name', finalUser);
+            updateProfileUI(finalUser);
+            navigateTo('home'); // Masuk ke sistem tanpa reload
+        }
+
+        function logoutAction() {
+            localStorage.removeItem('hustle_user_name');
+            navigateTo('landing'); // Kembali ke awal
+        }
+
+        function updateProfileUI(name) {
+            const initial = name.substring(0, 2).toUpperCase();
+            document.getElementById('nav-user-name').innerText = name;
+            document.getElementById('nav-user-initial').innerText = initial;
+            document.getElementById('home-welcome-msg').innerText = `Halo, ${name} ! 👋`;
+            document.getElementById('prof-name').innerText = name;
+            document.getElementById('prof-initial').innerText = initial;
+        }
+
+        function switchLoginTab(type) {
+            const loginForm = document.getElementById('form-login');
+            const registerForm = document.getElementById('form-register');
+            const loginTab = document.getElementById('tab-login');
+            const registerTab = document.getElementById('tab-register');
+
+            if (type === 'login') {
+                loginForm.classList.remove('hidden'); registerForm.classList.add('hidden');
+                loginTab.classList.add('bg-indigo-600', 'text-white'); loginTab.classList.remove('text-zinc-500');
+                registerTab.classList.remove('bg-indigo-600', 'text-white'); registerTab.classList.add('text-zinc-500');
+            } else {
+                loginForm.classList.add('hidden'); registerForm.classList.remove('hidden');
+                registerTab.classList.add('bg-indigo-600', 'text-white'); registerTab.classList.remove('text-zinc-500');
+                loginTab.classList.remove('bg-indigo-600', 'text-white'); loginTab.classList.add('text-zinc-500');
+            }
+        }
+
+        // --- FINANCE MODALS ---
+        function openTopUpModal() { document.getElementById('topUpModal').classList.remove('hidden'); }
+        function closeTopUpModal() { document.getElementById('topUpModal').classList.add('hidden'); }
+        function confirmTopUp() {
+            const amount = document.getElementById('topup-amount').value;
+            const method = document.getElementById('topup-method').value;
+            if (!amount || amount < 10000) { alert("Minimal Top Up Rp 10.000"); return; }
+            alert(`Top Up Rp ${parseInt(amount).toLocaleString()} via ${method} berhasil dibuat! Silakan lakukan pembayaran.`);
+            closeTopUpModal();
+        }
+
+        function closeWithdrawModal() { document.getElementById('withdrawModal').classList.add('hidden'); }
+        function confirmWithdraw() {
+            const amount = document.getElementById('withdraw-amount').value;
+            const bank = document.getElementById('bank-select').value;
+            const acc = document.getElementById('account-number').value;
+            if (!amount || amount < 50000) { alert("Minimal Penarikan Rp 50.000"); return; }
+            if (!acc) { alert("Masukkan Nomor Rekening/HP"); return; }
+            alert(`Permintaan penarikan Rp ${parseInt(amount).toLocaleString()} ke ${bank} (${acc}) berhasil dikirim!`);
+            closeWithdrawModal();
+        }
+
+        // --- DATA & TASK LOGIC ---
+        const staticTasks = [
+            { title: "Update Dashboard Ormawa", user: "Aditya Rahman", initial: "AR", category: "WEB DEV", desc: "Memperbaiki sistem filter kategori dan mengoptimalkan kecepatan loading.", email: "adit@hasnur.ac.id", wa: "0812-5566-7788", deadline: "20 Feb 2026", payment: "Rp 150.000" },
+            { title: "Desain Poster Dies Natalis", user: "Siti Aminah", initial: "SA", category: "DESAIN", desc: "Membuat visual promosi kreatif untuk feed Instagram.", email: "siti@hasnur.ac.id", wa: "0821-9988-1122", deadline: "22 Feb 2026", payment: "Rp 75.000" },
+            { title: "Editor Video Dokumentasi", user: "Fahri Hamzah", initial: "FH", category: "VIDEO", desc: "Editing video pendek durasi 30 detik untuk UKM.", email: "fahri@hasnur.ac.id", wa: "0852-3344-5566", deadline: "18 Feb 2026", payment: "Rp 200.000" },
+            { title: "Copywriting Artikel Blog", user: "Budi Santoso", initial: "BS", category: "MENULIS", desc: "Menulis 3 artikel SEO-friendly tentang tren teknologi.", email: "budi@hasnur.ac.id", wa: "0813-1122-3344", deadline: "25 Feb 2026", payment: "Rp 50.000" }
+        ];
+
+        let currentCategory = 'ALL';
+        function setCategory(cat, el) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+            el.classList.add('active');
+            filterTasks();
+        }
+
+        function filterTasks() {
+            const search = document.getElementById('search-task-input').value.toLowerCase();
+            const uploadedTasks = JSON.parse(localStorage.getItem('user_posted_tasks')) || [];
+            const allTasks = [...uploadedTasks, ...staticTasks];
+            const filtered = allTasks.filter(t => t.title.toLowerCase().includes(search) && (currentCategory === 'ALL' || t.category === currentCategory));
+            renderTasksList(filtered);
+        }
+
+        function renderTasksList(data) {
+            const grid = document.getElementById('taskGrid');
+            grid.innerHTML = data.map((t, index) => {
+                let iconName = 'briefcase';
+                if (t.category === 'WEB DEV') iconName = 'code';
+                else if (t.category === 'DESAIN') iconName = 'palette';
+                else if (t.category === 'VIDEO') iconName = 'video';
+                else if (t.category === 'MENULIS') iconName = 'file-text';
+                else if (t.category === 'UI/UX') iconName = 'layout';
+                else if (t.category === 'DATA') iconName = 'bar-chart-2';
+
+                return `
+                <div class="bg-white rounded-[2.5rem] p-8 border border-zinc-100 shadow-sm hover:shadow-xl transition-all duration-300 card-hover group cursor-pointer flex flex-col justify-between h-full dark:bg-zinc-800 dark:border-zinc-700">
+                    <div>
+                        <div class="w-14 h-14 bg-blue-50 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center text-blue-600 mb-6 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            <i data-lucide="${iconName}" class="w-7 h-7"></i>
+                        </div>
+                        <h4 class="text-xl font-bold mb-2 group-hover:text-blue-600 transition-colors dark:text-white line-clamp-1">${t.title}</h4>
+                        <p class="text-[10px] font-bold text-zinc-400 uppercase mb-4 tracking-wider">Oleh: ${t.user}</p>
+                        <p class="text-zinc-500 text-sm leading-relaxed mb-6 line-clamp-2 dark:text-zinc-400">${t.desc}</p>
+                    </div>
+                    <div class="pt-6 border-t border-zinc-50 dark:border-zinc-700 flex items-center justify-between mt-auto">
+                        <div>
+                            <p class="text-[10px] font-bold text-zinc-400 uppercase">Budget</p>
+                            <p class="text-sm font-bold text-blue-600">${t.payment}</p>
+                        </div>
+                        <button onclick="openTaskDetail(${index})" class="bg-zinc-900 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors shadow-lg btn-press dark:bg-white dark:text-black">
+                            <i data-lucide="arrow-up-right" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            `}).join('');
+            lucide.createIcons();
+        }
+
+        // --- UPLOAD LOGIC ---
+        function switchUploadTab(tabId) {
+            document.querySelectorAll('.upload-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('section-' + tabId).classList.remove('hidden');
+            document.querySelectorAll('.tab-btn').forEach(b => b.className = 'tab-btn flex-1 py-3 px-6 rounded-2xl text-xs font-bold transition-all text-zinc-500 hover:text-zinc-700 whitespace-nowrap btn-press');
+            document.getElementById('tab-' + tabId).className = 'tab-btn active flex-1 py-3 px-6 rounded-2xl text-xs font-bold transition-all whitespace-nowrap bg-white text-blue-600 shadow-sm dark:bg-zinc-700 btn-press';
+            if (tabId === 'my-uploads') renderMyUploads();
+            if (tabId === 'on-progress') renderTakenTasks();
+        }
+
+        function handleUploadSubmit(e) {
+            e.preventDefault();
+            const name = localStorage.getItem('hustle_user_name') || "User";
+            const newTask = {
+                id: Date.now(), title: document.getElementById('up-title').value, desc: document.getElementById('up-desc').value,
+                email: document.getElementById('up-email').value, wa: document.getElementById('up-whatsapp').value,
+                category: document.getElementById('up-category').value, deadline: document.getElementById('up-deadline').value,
+                payment: "Rp " + parseInt(document.getElementById('up-budget').value).toLocaleString(),
+                user: name, initial: name.substring(0, 2).toUpperCase()
+            };
+            let tasks = JSON.parse(localStorage.getItem('user_posted_tasks')) || [];
+            tasks.unshift(newTask);
+            localStorage.setItem('user_posted_tasks', JSON.stringify(tasks));
+            alert('Tugas berhasil diupload!');
+            e.target.reset();
+            navigateTo('explore');
+        }
+
+        function renderMyUploads() {
+            const grid = document.getElementById('myUploadsGrid');
+            const tasks = JSON.parse(localStorage.getItem('user_posted_tasks')) || [];
+            if (tasks.length === 0) { grid.innerHTML = `<p class="text-zinc-400 text-sm italic col-span-full text-center py-10">Belum ada postingan.</p>`; return; }
+            grid.innerHTML = tasks.map(t => `
+                <div class="bg-white p-8 rounded-[2.5rem] border border-zinc-100 shadow-sm relative group hover:shadow-lg transition-all dark:bg-zinc-800 dark:border-zinc-700 card-hover">
+                    <button onclick="deleteTask(${t.id})" class="absolute top-6 right-6 w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white transform hover:scale-110 shadow-sm">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                    <span class="inline-block px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold mb-4 tracking-wider">${t.category}</span>
+                    <h4 class="text-lg font-bold mb-2 pr-8 dark:text-white">${t.title}</h4>
+                    <p class="text-zinc-500 text-xs mb-4 line-clamp-2 dark:text-zinc-400">${t.desc}</p>
+                    <div class="pt-4 border-t border-zinc-50 dark:border-zinc-700"><p class="text-sm font-bold text-zinc-800 dark:text-white">${t.payment}</p></div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function renderTakenTasks() {
+            const grid = document.getElementById('takenTasksGrid');
+            const tasks = JSON.parse(localStorage.getItem('user_taken_tasks')) || [];
+            if (tasks.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center"><div class="bg-zinc-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 dark:bg-zinc-800"><i data-lucide="coffee" class="w-8 h-8 text-zinc-300"></i></div><p class="text-zinc-400 text-sm italic">Belum ada tugas yang sedang dikerjakan.</p></div>`;
+                lucide.createIcons(); return;
+            }
+            grid.innerHTML = tasks.map(t => `
+                <div class="bg-white p-8 rounded-[2.5rem] border border-zinc-100 shadow-sm relative group hover:shadow-lg transition-all dark:bg-zinc-800 dark:border-zinc-700 card-hover">
+                    <div class="absolute top-6 right-6 bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-[10px] font-bold">ON PROGRESS</div>
+                    <span class="inline-block px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold mb-4 tracking-wider">${t.category}</span>
+                    <h4 class="text-lg font-bold mb-2 pr-8 dark:text-white">${t.title}</h4>
+                    <p class="text-zinc-500 text-xs mb-4 line-clamp-2 dark:text-zinc-400">${t.desc}</p>
+                    <div class="pt-4 border-t border-zinc-50 dark:border-zinc-700 flex justify-between items-center">
+                        <p class="text-sm font-bold text-zinc-800 dark:text-white">${t.payment}</p>
+                        <button onclick="navigateTo('chat')" class="text-blue-600 hover:bg-blue-50 hover:scale-110 p-2 rounded-full transition-all"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function deleteTask(id) {
+            if (confirm('Hapus tugas ini?')) {
+                let tasks = JSON.parse(localStorage.getItem('user_posted_tasks')) || [];
+                tasks = tasks.filter(t => t.id !== id);
+                localStorage.setItem('user_posted_tasks', JSON.stringify(tasks));
+                renderMyUploads();
+            }
+        }
+
+        // --- TASK DETAIL & CONTACT ---
+        function openTaskDetail(index) {
+            const uploadedTasks = JSON.parse(localStorage.getItem('user_posted_tasks')) || [];
+            const allTasks = [...uploadedTasks, ...staticTasks];
+            const t = allTasks[index];
+
+            document.getElementById('modalTitle').innerText = t.title;
+            document.getElementById('modalUserName').innerText = t.user;
+            document.getElementById('modalUserInitial').innerText = t.initial;
+            document.getElementById('modalCategory').innerText = t.category;
+            document.getElementById('modalDesc').innerText = t.desc;
+            document.getElementById('modalPayment').innerText = t.payment;
+            document.getElementById('modalDeadline').innerText = t.deadline;
+            document.getElementById('modalEmail').innerText = t.email || "Email tidak tersedia";
+            document.getElementById('modalWA').innerText = t.wa || "Nomor tidak tersedia";
+
+            if (t.wa) {
+                const cleanWA = t.wa.replace(/\D/g, '');
+                document.getElementById('waLink').href = `https://wa.me/${cleanWA}?text=Halo%20${t.user},%20saya%20tertarik%20dengan%20tugas%20${t.title}`;
+            } else { document.getElementById('waLink').href = "#"; }
+
+            document.getElementById('hubungiBtn').onclick = () => contactOwner(t);
+            document.getElementById('taskModal').classList.remove('hidden');
+        }
+        function closeTaskModal() { document.getElementById('taskModal').classList.add('hidden'); }
+
+        function contactOwner(task) {
+            let takenTasks = JSON.parse(localStorage.getItem('user_taken_tasks')) || [];
+            if (!takenTasks.some(t => t.title === task.title)) {
+                takenTasks.unshift(task);
+                localStorage.setItem('user_taken_tasks', JSON.stringify(takenTasks));
+                alert("Tugas berhasil diambil! Cek tab 'Sedang Dikerjakan' di menu Upload.");
+            } else { alert("Anda sudah mengambil tugas ini."); }
+
+            const newChat = { id: Date.now(), name: task.user, initial: task.initial, lastMsg: "Tertarik: " + task.title, time: "Baru saja", messages: [] };
+            contacts.unshift(newChat);
+            closeTaskModal(); navigateTo('chat');
+        }
+
+        // --- CHAT LOGIC ---
+        const contacts = [{ id: 0, name: "Aditya Rahman", initial: "AR", lastMsg: "Oke, ditunggu!", time: "20:40", messages: [{ sender: "them", text: "Halo! Progresnya gimana?", time: "20:40" }] }];
+        let activeChatId = 0;
+
+        function renderContacts() {
+            const list = document.getElementById('contactList');
+            list.innerHTML = contacts.map(c => `
+                <div onclick="switchChat(${c.id})" class="flex items-center gap-4 p-4 cursor-pointer rounded-2xl transition-all hover:bg-zinc-50 dark:hover:bg-zinc-700/50 ${activeChatId === c.id ? 'bg-blue-50 dark:bg-blue-900/20' : ''}">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold shadow-md">${c.initial}</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between mb-1"><h4 class="font-bold text-sm truncate dark:text-white">${c.name}</h4><span class="text-[10px] text-zinc-400">${c.time}</span></div>
+                        <p class="text-xs text-zinc-500 truncate dark:text-zinc-400">${c.lastMsg}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function switchChat(id) { activeChatId = id; renderContacts(); renderMessages(); }
+        function renderMessages() {
+            const contact = contacts.find(c => c.id === activeChatId);
+            if (!contact) return;
+            document.getElementById('activeName').innerText = contact.name;
+            document.getElementById('activeAvatar').innerText = contact.initial;
+            const box = document.getElementById('chatBox');
+            box.innerHTML = contact.messages.map(m => `
+                <div class="flex flex-col ${m.sender === 'me' ? 'items-end ml-auto' : 'items-start'} max-w-[85%] animate-fade-in-up">
+                    <div class="${m.sender === 'me' ? 'bg-blue-600 text-white shadow-blue-200' : 'bg-white text-zinc-800 shadow-zinc-100'} px-5 py-3 rounded-2xl shadow-md text-sm relative min-w-[80px]">
+                        <p class="pb-2">${m.text}</p><span class="text-[9px] opacity-70 absolute bottom-1.5 right-3">${m.time}</span>
+                    </div>
+                </div>
+            `).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+        document.getElementById('chatForm').onsubmit = (e) => {
+            e.preventDefault();
+            const input = document.getElementById('msgInput');
+            if (!input.value.trim()) return;
+            const contact = contacts.find(c => c.id === activeChatId);
+            const time = new Date().getHours() + ":" + new Date().getMinutes();
+            contact.messages.push({ sender: "me", text: input.value, time: time });
+            contact.lastMsg = input.value; input.value = '';
+            renderContacts(); renderMessages();
+        };
+
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            initTheme();
+            lucide.createIcons();
+            checkAuthInit();
+        };
+    </script>
+</body>
+
+</html>
