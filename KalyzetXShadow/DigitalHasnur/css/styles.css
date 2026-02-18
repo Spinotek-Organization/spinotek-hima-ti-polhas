@@ -165,6 +165,15 @@
         color: rgb(219, 234, 254) !important;
     }
 
+    /* Mobile menu links should remain visible in scrolled state */
+    #navbar.scrolled #mobile-menu .mobile-link {
+        color: rgb(71, 85, 105) !important;
+    }
+
+    #navbar.scrolled #mobile-menu .mobile-link:hover {
+        color: rgb(37, 99, 235) !important;
+    }
+
     #navbar.scrolled .nav-link::after {
         @apply bg-white;
         background-color: white !important;
